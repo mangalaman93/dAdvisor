@@ -46,6 +46,18 @@ class Container(object):
       else:
         raise Exception("invalid container id")
 
+  # compare two containers "=="
+  def __eq__(self, other):
+    if isinstance(other, self.__class__):
+      return self.id == other.id
+    return False
+
+  # compare two containers "!="
+  def __ne__(self, other):
+    if isinstance(other, self.__class__):
+      return self.id != other.id
+    return True
+
   # check whether a directory exists
   def exists(self, cdir):
     if not os.path.isdir(cdir):

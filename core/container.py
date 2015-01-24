@@ -115,3 +115,23 @@ class Container(object):
       else:
         total_cpus = total_cpus + 1 + int(cpu_range[1]) - int(cpu_range[0])
     return total_cpus
+
+  # writes into a file
+  def write_file(self, filePath, data):
+    f = open(filePath, 'w')
+    f.write(str(data)+"\n")
+    f.close()
+
+  # set given value of cpu shares for the container
+  def set_soft_cpu_shares(self, shares):
+    cdir = os.path.join(BASE_URL, CPU_URL, DOCKER_URL, self.id)
+    self.exists(cdir)
+    self.write_file(os.path.join(cdir, CPU_SHARES_FILE), shares)
+
+  # set allocated CPU to the container (shares=1024=>1core)
+  def set_hard_cpu_shares(self, shares):
+    cdir = os.path.join(BASE_URL, CPU_URL, DOCKER_URL, self.id)
+    period = self.read_file(os.path.join(cdir, CPU_CFS_PERIOD_FILE))
+    if shares > self.get_pinned_cpus()*1024:
+      raise Exception("trying to allocate shares more than available CPU to the docker container")
+    self.write_file(os.path.join(cdir, CPU_CFS_QUOTA_FILE), int(shares/1024.0*int(period)))

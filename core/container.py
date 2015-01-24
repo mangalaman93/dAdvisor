@@ -2,6 +2,7 @@
 # allows to get usage statistics for a docker container
 # and change resource allocation for the container
 # needs root permission while using the class
+# require docker 1.3 to get network statistics
 
 import os
 import subprocess
@@ -25,6 +26,8 @@ CPU_SHARES_FILE = "cpu.shares"
 CPUSET_FILE = "cpuset.cpus"
 CPU_CFS_QUOTA_FILE = "cpu.cfs_quota_us"
 CPU_CFS_PERIOD_FILE = "cpu.cfs_period_us"
+NET_TX_FILE = "/sys/devices/virtual/net/eth0/statistics/tx_bytes"
+NET_RX_FILE = "/sys/devices/virtual/net/eth0/statistics/rx_bytes"
 
 class Container(object):
   """docker container class"""
@@ -37,14 +40,18 @@ class Container(object):
       self.name = None
       self.id = id
     else:
-      p = subprocess.Popen('docker inspect '+id+' | grep Id',
-                           shell=True, stdout=subprocess.PIPE)
-      # if only the command executed successfully
-      if p.wait() == 0:
-        self.name = id
-        self.id = p.stdout.readlines()[0].split("\"")[3]
-      else:
-        raise Exception("invalid container id")
+      cmd = 'docker inspect '+id+' | grep Id'
+      self.name = id
+      self.id = self.system_cmd(cmd, "invalid container id").split("\"")[3]
+
+  # execute system command and return output
+  def system_cmd(self, cmd, message):
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    # if only the command executed successfully
+    if p.wait() == 0:
+      return p.stdout.readlines()[0]
+    else:
+      raise Exception(message)
 
   # compare two containers "=="
   def __eq__(self, other):
@@ -135,3 +142,23 @@ class Container(object):
     if shares > self.get_pinned_cpus()*1024:
       raise Exception("trying to allocate shares more than available CPU to the docker container")
     self.write_file(os.path.join(cdir, CPU_CFS_QUOTA_FILE), int(shares/1024.0*int(period)))
+
+  # total consumed network till now
+  def get_cum_network_usage(self, File):
+    cmd = 'docker exec '+self.id+' cat '+File
+    return int(self.system_cmd(cmd, "")[0])
+
+  # helper function
+  def get_network_usage_helper(self, File):
+    before_usage = self.get_cum_network_usage(File)
+    time.sleep(USAGE_CHECK_PERIOD)
+    after_usage = self.get_cum_network_usage(File)
+    return (after_usage-before_usage)/USAGE_CHECK_PERIOD
+
+  # received network traffic rate
+  def get_network_in_usage(self):
+    return self.get_network_usage_helper(NET_RX_FILE)
+
+  # sent network traffic rate
+  def get_network_out_usage(self):
+    return self.get_network_usage_helper(NET_TX_FILE)

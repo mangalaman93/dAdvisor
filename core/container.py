@@ -4,10 +4,9 @@
 # needs root permission while using the class
 # require docker 1.3 to get network statistics
 
-import os
-import subprocess
-import sys
 import time
+
+from guest import *
 
 # parameters
 USAGE_CHECK_PERIOD = 0.5   # period before collect usage again
@@ -29,46 +28,18 @@ CPU_CFS_PERIOD_FILE = "cpu.cfs_period_us"
 NET_TX_FILE = "/sys/devices/virtual/net/eth0/statistics/tx_bytes"
 NET_RX_FILE = "/sys/devices/virtual/net/eth0/statistics/rx_bytes"
 
-class Container(object):
+class Container(Guest):
   """docker container class"""
 
   # constructor
   def __init__(self, id):
-    super(Container, self).__init__()
+    super(Container, self).__init__(id)
     # if name is provided instead of container id
     if len(id) == LEN_ID:
-      self.name = None
       self.id = id
     else:
       cmd = 'docker inspect '+id+' | grep Id'
-      self.name = id
       self.id = self.system_cmd(cmd, "invalid container id").split("\"")[3]
-
-  # execute system command and return output
-  def system_cmd(self, cmd, message):
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    # if only the command executed successfully
-    if p.wait() == 0:
-      return p.stdout.readlines()[0]
-    else:
-      raise Exception(message)
-
-  # compare two containers "=="
-  def __eq__(self, other):
-    if isinstance(other, self.__class__):
-      return self.id == other.id
-    return False
-
-  # compare two containers "!="
-  def __ne__(self, other):
-    if isinstance(other, self.__class__):
-      return self.id != other.id
-    return True
-
-  # check whether a directory exists
-  def exists(self, cdir):
-    if not os.path.isdir(cdir):
-      raise Exception("container doesn't exist!")
 
   # general read file function
   def read_file(self, filePath):
@@ -77,12 +48,30 @@ class Container(object):
     f.close()
     return data
 
+  # writes into a file
+  def write_file(self, filePath, data):
+    f = open(filePath, 'w')
+    f.write(str(data)+"\n")
+    f.close()
+
   # returns total CPU usage (user+system)
   def get_cum_cpu_usage(self, filePath):
     content = self.read_file(filePath)
     content_list = content.split()
     # adding system and user usage
     return (int(content_list[1]) + int(content_list[3]))
+
+  # total consumed network till now
+  def get_cum_network_usage(self, File):
+    cmd = 'docker exec '+self.id+' cat '+File
+    return int(self.system_cmd(cmd, "")[0])
+
+  # helper function
+  def get_network_usage_helper(self, File):
+    before_usage = self.get_cum_network_usage(File)
+    time.sleep(USAGE_CHECK_PERIOD)
+    after_usage = self.get_cum_network_usage(File)
+    return (after_usage-before_usage)/USAGE_CHECK_PERIOD
 
   # get cpu usage by the container
   def get_cpu_usage(self):
@@ -123,11 +112,13 @@ class Container(object):
         total_cpus = total_cpus + 1 + int(cpu_range[1]) - int(cpu_range[0])
     return total_cpus
 
-  # writes into a file
-  def write_file(self, filePath, data):
-    f = open(filePath, 'w')
-    f.write(str(data)+"\n")
-    f.close()
+  # received network traffic rate
+  def get_network_in_usage(self):
+    return self.get_network_usage_helper(NET_RX_FILE)
+
+  # sent network traffic rate
+  def get_network_out_usage(self):
+    return self.get_network_usage_helper(NET_TX_FILE)
 
   # set given value of cpu shares for the container
   def set_soft_cpu_shares(self, shares):
@@ -143,22 +134,12 @@ class Container(object):
       raise Exception("trying to allocate shares more than available CPU to the docker container")
     self.write_file(os.path.join(cdir, CPU_CFS_QUOTA_FILE), int(shares/1024.0*int(period)))
 
-  # total consumed network till now
-  def get_cum_network_usage(self, File):
-    cmd = 'docker exec '+self.id+' cat '+File
-    return int(self.system_cmd(cmd, "")[0])
+  # set network-in bandwidth, bw in bytes/sec
+  def set_network_in_bw(self, bw):
+    # @todo
+    pass
 
-  # helper function
-  def get_network_usage_helper(self, File):
-    before_usage = self.get_cum_network_usage(File)
-    time.sleep(USAGE_CHECK_PERIOD)
-    after_usage = self.get_cum_network_usage(File)
-    return (after_usage-before_usage)/USAGE_CHECK_PERIOD
-
-  # received network traffic rate
-  def get_network_in_usage(self):
-    return self.get_network_usage_helper(NET_RX_FILE)
-
-  # sent network traffic rate
-  def get_network_out_usage(self):
-    return self.get_network_usage_helper(NET_TX_FILE)
+  # set network-out bandwidth, bw in bytes/sec
+  def set_network_out_bw(self, bw):
+    # @todo
+    pass

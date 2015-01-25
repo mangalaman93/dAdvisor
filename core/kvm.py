@@ -2,10 +2,10 @@
 # allows to get usage statistics for a KVM VMs
 # and change resource allocation for the VMs
 
-import subprocess
-import sys
+from guest import *
 
-class KvmVM(object):
+# @todo
+class KvmVM(guest.Guest):
   """kvm VM class"""
 
   def __init__(self, name):

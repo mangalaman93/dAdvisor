@@ -2,10 +2,10 @@
 # allows to get usage statistics for a virtualbox VMs
 # and change resource allocation for the VMs
 
-import subprocess
-import sys
+from guest import *
 
-class VirtualBoxVM(object):
+# @todo
+class VirtualBoxVM(Guest):
   """VirtualBox VM class"""
 
   def __init__(self, name):

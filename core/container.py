@@ -2,10 +2,10 @@
 # allows to get usage statistics for a docker container
 # and change resource allocation for the container
 # needs root permission while using the class
-# require docker 1.3 to get network statistics
+# requires docker 1.3 to get network statistics
+# requires tc,cat tools to be installed in the container
 
 import time
-
 from guest import *
 
 # parameters
@@ -28,6 +28,11 @@ CPU_CFS_PERIOD_FILE = "cpu.cfs_period_us"
 NET_TX_FILE = "/sys/devices/virtual/net/eth0/statistics/tx_bytes"
 NET_RX_FILE = "/sys/devices/virtual/net/eth0/statistics/rx_bytes"
 
+# Network constants
+INT_INTERFACE = "eth0"
+ROOT_HANDLE = "1:"
+CLASS_HANDLE = "30"
+
 class Container(Guest):
   """docker container class"""
 
@@ -39,7 +44,7 @@ class Container(Guest):
       self.id = id
     else:
       cmd = 'docker inspect '+id+' | grep Id'
-      self.id = self.system_cmd(cmd, "invalid container id").split("\"")[3]
+      self.id = self.system_cmd(cmd, "invalid container id")[0].split("\"")[3]
 
   # general read file function
   def read_file(self, filePath):
@@ -112,13 +117,13 @@ class Container(Guest):
         total_cpus = total_cpus + 1 + int(cpu_range[1]) - int(cpu_range[0])
     return total_cpus
 
-  # received network traffic rate
+  # received network traffic rate (kbytes per sec)
   def get_network_in_usage(self):
-    return self.get_network_usage_helper(NET_RX_FILE)
+    return self.get_network_usage_helper(NET_RX_FILE)/1000
 
-  # sent network traffic rate
+  # sent network traffic rate (kbytes per sec)
   def get_network_out_usage(self):
-    return self.get_network_usage_helper(NET_TX_FILE)
+    return self.get_network_usage_helper(NET_TX_FILE)/1000
 
   # set given value of cpu shares for the container
   def set_soft_cpu_shares(self, shares):
@@ -131,15 +136,55 @@ class Container(Guest):
     cdir = os.path.join(BASE_URL, CPU_URL, DOCKER_URL, self.id)
     period = self.read_file(os.path.join(cdir, CPU_CFS_PERIOD_FILE))
     if shares > self.get_pinned_cpus()*1024:
-      raise Exception("trying to allocate shares more than available CPU to the docker container")
-    self.write_file(os.path.join(cdir, CPU_CFS_QUOTA_FILE), int(shares/1024.0*int(period)))
+      raise Exception("trying to allocate shares more than available")
+    self.write_file(os.path.join(cdir, CPU_CFS_QUOTA_FILE),
+                    int(shares/1024.0*int(period)))
 
-  # set network-in bandwidth, bw in bytes/sec
+  # set network-in bandwidth, bw in kbps (kbytes per sec)
   def set_network_in_bw(self, bw):
-    # @todo
-    pass
+    if self.in_bw:
+      self.in_bw = bw
+      cmd = "tc class change dev "+self.ext_iface+" parent "+self.root_handle\
+            +" classid "+self.root_handle+self.class_handle+" htb rate "\
+            +str(self.in_bw)+"kbps"
+      self.system_cmd(cmd, "unable to execute tc command on host")
+    else:
+      self.in_bw = bw
+      cmd = "ip link list | grep $(nsenter -t $(docker inspect --format "\
+            +"'{{ .State.Pid }}' "+self.id+") -n ethtool -S "+INT_INTERFACE\
+            +" | grep peer | awk '{print $2}') | awk '{print $2}' | cut -d "\
+            +"':' -f 1 | tr -d '\n'"
+      self.ext_iface = self.system_cmd(cmd, "unable to find peer interface")[0]
+      self.root_handle = ROOT_HANDLE
+      self.class_handle = CLASS_HANDLE
+      cmd = "tc qdisc add dev "+self.ext_iface+" root handle "\
+            +self.root_handle+" htb default "+self.class_handle
+      self.system_cmd(cmd, "unable to execute tc command1 on host")
+      cmd = "tc class add dev "+self.ext_iface+" parent "+self.root_handle\
+            +" classid "+self.root_handle+self.class_handle+" htb rate "\
+            +str(self.in_bw)+"kbps"
+      self.system_cmd(cmd, "unable to execute tc command2 on host")
 
-  # set network-out bandwidth, bw in bytes/sec
+  # set network-out bandwidth, bw in kbytes/sec
   def set_network_out_bw(self, bw):
-    # @todo
-    pass
+    if self.out_bw:
+      self.out_bw = bw
+      cmd = "nsenter -t $(docker inspect --format '{{ .State.Pid }}' "+self.id\
+            +") -n tc class change dev "+self.iface+" parent "+self.root_handle\
+            +" classid "+self.root_handle+self.class_handle+" htb rate "\
+            +str(self.out_bw)+"kbps"
+      self.system_cmd(cmd, "unable to execute tc command on host")
+    else:
+      self.out_bw = bw
+      self.iface = INT_INTERFACE
+      self.root_handle = ROOT_HANDLE
+      self.class_handle = CLASS_HANDLE
+      cmd = "nsenter -t $(docker inspect --format '{{ .State.Pid }}' "+self.id\
+            +") -n tc qdisc add dev "+self.iface+" root handle "\
+            +self.root_handle+" htb default "+self.class_handle
+      self.system_cmd(cmd, "unable to execute tc command1 on host")
+      cmd = "nsenter -t $(docker inspect --format '{{ .State.Pid }}' "+self.id\
+             +") -n tc class add dev "+self.iface+" parent "+self.root_handle\
+             +" classid "+self.root_handle+self.class_handle+" htb rate "\
+             +str(self.out_bw)+"kbps"
+      self.system_cmd(cmd, "unable to execute tc command2 on host")

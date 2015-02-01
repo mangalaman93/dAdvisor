@@ -1,6 +1,7 @@
 # Guest abstract class
 # provides functions to set/get
 #  network and CPU allocation/usage
+# network bandwidth are in kbps (kilobytes per sec)
 
 import os
 import subprocess
@@ -32,7 +33,7 @@ class Guest(object):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     # if only the command executed successfully
     if p.wait() == 0:
-      return p.stdout.readlines()[0]
+      return p.stdout.readlines()
     else:
       raise Exception(message)
 
@@ -72,22 +73,38 @@ class Guest(object):
     """sent network traffic usage (rate)"""
     raise NotImplementedError
 
-  # set given value of cpu shares for the container
+  # current allocated bandwidth for incoming network traffic (in kbps)
+  def get_network_in_allocation(self):
+    """current allocation for incoming network traffic"""
+    if self.in_bw:
+      return self.in_bw
+    else:
+      raise Exception("bandwidth is not yet allocated")
+
+  # current allocated bandwidth for outgoing network traffic (in kbps)
+  def get_network_out_allocation(self):
+    """current allocated bandwidth for outgoing network traffic"""
+    if self.out_bw:
+      return self.out_bw
+    else:
+      raise Exception("bandwidth is not yet allocated")
+
+  # change given value of cpu shares for the container
   def set_soft_cpu_shares(self, shares):
-    """set current allocated CPU shares (soft limit)"""
+    """change current allocated CPU shares (soft limit)"""
     raise NotImplementedError
 
-  # set allocated CPU to the container (shares=1024=>1core)
+  # change allocated CPU to the container (shares=1024=>1core)
   def set_hard_cpu_shares(self, shares):
-    """set current allocated CPU shares (hard limit)"""
+    """change current allocated CPU shares (hard limit)"""
     raise NotImplementedError
 
-  # set network-in bandwidth, bw in bytes/sec
+  # change network-in bandwidth, bw in bytes/sec
   def set_network_in_bw(self, bw):
-    """set limit on received traffic on network (eth0)"""
+    """change limit on received traffic on network (eth0)"""
     raise NotImplementedError
 
-  # set network-out bandwidth, bw in bytes/sec
+  # change network-out bandwidth, bw in bytes/sec
   def set_network_out_bw(self, bw):
-    """set limit on sent traffic on network (eth0)"""
+    """change limit on sent traffic on network (eth0)"""
     raise NotImplementedError

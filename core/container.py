@@ -9,7 +9,7 @@ import time
 from guest import *
 
 # parameters
-USAGE_CHECK_PERIOD = 0.5   # period before collect usage again
+USAGE_CHECK_PERIOD = 1   # period before collect usage again
 
 # constants
 LEN_ID = 64
@@ -86,7 +86,7 @@ class Container(Guest):
     before_usage = self.get_cum_cpu_usage(filePath)
     time.sleep(USAGE_CHECK_PERIOD)
     after_usage = self.get_cum_cpu_usage(filePath)
-    return (after_usage-before_usage)/USAGE_CHECK_PERIOD
+    return (after_usage-before_usage)/USAGE_CHECK_PERIOD*1024/100.0
 
   # get current allocated CPU shares
   def get_soft_cpu_shares(self):
@@ -119,11 +119,11 @@ class Container(Guest):
 
   # received network traffic rate (kbytes per sec)
   def get_network_in_usage(self):
-    return self.get_network_usage_helper(NET_RX_FILE)/1000
+    return self.get_network_usage_helper(NET_RX_FILE)/1000.0
 
   # sent network traffic rate (kbytes per sec)
   def get_network_out_usage(self):
-    return self.get_network_usage_helper(NET_TX_FILE)/1000
+    return self.get_network_usage_helper(NET_TX_FILE)/1000.0
 
   # set given value of cpu shares for the container
   def set_soft_cpu_shares(self, shares):

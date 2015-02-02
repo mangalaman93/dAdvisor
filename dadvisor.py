@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
 from core.container import *
-from core.monitor import *
+from policy.monitor import *
 
 # commands
 CMD_USAGE = ''' usage: <command> [<args>]
 commands:
-  add <id/name>  monitor docker container
-  rm  <id/name>  stop monitoring the container'''
+  add <id/name> shares monitor docker container
+  rm  <id/name>        stop monitoring the container'''
 monitorThread = Monitor()
 
 # main logic for reading input from command line
@@ -25,8 +25,10 @@ def read_input():
         break
 
       # add command
-      if cmd_list[0] == "add" and len(cmd_list)==2:
-        monitorThread.add_container(Container(cmd_list[1]))
+      if cmd_list[0] == "add" and len(cmd_list)==3:
+        container = Container(cmd_list[1])
+        container.set_hard_cpu_shares(int(cmd_list[2]))
+        monitorThread.add_container(container)
         print "added container"
       # rm command
       elif cmd_list[0] == "rm" and len(cmd_list)==2:

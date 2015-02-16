@@ -6,8 +6,8 @@ from policy.monitor import *
 # commands
 CMD_USAGE = ''' usage: <command> [<args>]
 commands:
-  add <id/name> shares monitor docker container
-  rm  <id/name>        stop monitoring the container'''
+  add <id/name> in_bw monitor docker container
+  rm  <id/name>       stop monitoring the container'''
 monitorThread = Monitor()
 
 # main logic for reading input from command line
@@ -27,7 +27,7 @@ def read_input():
       # add command
       if cmd_list[0] == "add" and len(cmd_list)==3:
         container = Container(cmd_list[1])
-        container.set_hard_cpu_shares(int(cmd_list[2]))
+        container.set_network_in_bw(int(cmd_list[2]))
         monitorThread.add_container(container)
         print "added container"
       # rm command

@@ -26,7 +26,7 @@ class Monitor(threading.Thread):
   def add_container(self, container):
     with self.lock:
       if self.containers.count(container) == 1:
-        print "**Error: container",container.name,"already exists"
+        print "**Error: container ",container.name," already exists"
       else:
         self.containers.append(container)
 
@@ -45,12 +45,12 @@ class Monitor(threading.Thread):
         if not self.containers:
           continue
         for container in self.containers:
-          # cpu allocation
-          usage = container.get_cpu_usage()
-          allocation = container.get_hard_cpu_shares()
+          # network allocation
+          usage = container.get_network_in_usage()
+          allocation = container.get_network_in_allocation()
           print "usage {0}, allocation {1} for container {2}"\
                 .format(usage, allocation, container.name)
           if(allocation*SAFETY_FACTOR < usage):
             print "usage {0} crossed allocation {1} for container {2}"\
                   .format(usage, allocation, container.name)
-            container.set_hard_cpu_shares(allocation*(1+INCREMENT_FACTOR))
+            container.set_network_in_bw(allocation*(1+INCREMENT_FACTOR))

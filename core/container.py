@@ -152,7 +152,7 @@ class Container(Guest):
       self.in_bw = bw
       cmd = "ip link list | grep $(nsenter -t $(docker inspect --format "\
             +"'{{ .State.Pid }}' "+self.id+") -n ethtool -S "+INT_INTERFACE\
-            +" | grep peer | awk '{print $2}') | awk '{print $2}' | cut -d "\
+            +" | grep peer | awk '{print $2}'): | awk '{print $2}' | cut -d "\
             +"':' -f 1 | tr -d '\n'"
       self.ext_iface = self.system_cmd(cmd, "unable to find peer interface")[0]
       self.root_handle = ROOT_HANDLE

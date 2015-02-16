@@ -99,12 +99,12 @@ class Guest(object):
     """change current allocated CPU shares (hard limit)"""
     raise NotImplementedError
 
-  # change network-in bandwidth, bw in bytes/sec
+  # change network-in bandwidth, bw in kbytes/sec
   def set_network_in_bw(self, bw):
     """change limit on received traffic on network (eth0)"""
     raise NotImplementedError
 
-  # change network-out bandwidth, bw in bytes/sec
+  # change network-out bandwidth, bw in kbytes/sec
   def set_network_out_bw(self, bw):
     """change limit on sent traffic on network (eth0)"""
     raise NotImplementedError

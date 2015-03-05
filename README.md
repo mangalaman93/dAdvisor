@@ -1,10 +1,4 @@
-# dAdvisor
-Dynamic Resource Monitor
+## dAdvisor
+Dynamic Resource Control and Monitoring
 
-# Issues
-* Outgoing bandwidth is not adjusted as directed
-
-# TODO
-* virtualbox
-* kvm
-* monitor
+## TODO

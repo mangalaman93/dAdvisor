@@ -1,5 +1,5 @@
-#ifndef CONTAINER_H
-#define CONTAINER_H
+#ifndef CONTAINERH
+#define CONTAINERH
 
 #include <iostream>
 #include "config.h"
@@ -13,18 +13,18 @@ public:
 
   // implementation of virtual functions
   string getType() const;
-  float get_cpu_usage();
-  float get_soft_cpu_shares();
-  float get_hard_cpu_shares();
-  int get_pinned_cpus();
-  float get_network_in_usage();
-  float get_network_out_usage();
-  float get_network_in_allocation();
-  float get_network_out_allocation();
-  void set_soft_cpu_shares(float shares);
-  void set_hard_cpu_shares(float shares);
-  void set_network_in_bw(float bw);
-  void set_network_out_bw(float bw);
+  float getCpuUsage();
+  float getSoftCpuShares();
+  float getHardCpuShares();
+  int getPinnedCpus();
+  float getNetworkInUsage();
+  float getNetworkOutUsage();
+  float getNetworkInAllocation();
+  float getNetworkOutAllocation();
+  void setSoftCpuShares(float shares);
+  void setHardCpuShares(float shares);
+  void setNetworkInBW(float bw);
+  void setNetworkOutBW(float bw);
 };
 
 #endif

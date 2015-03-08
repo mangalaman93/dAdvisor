@@ -1,6 +1,27 @@
 #include "lprocess.h"
 
-LProcess::LProcess(string n) : Guest(n) {
+LProcess::LProcess(string n, string cgroup) : Guest(n) {
+  init(DEFAULT_INTERFACE, cgroup);
+}
+
+LProcess::LProcess(string n, string interface, string cgroup) : Guest(n) {
+  init(interface, cgroup);
+}
+
+void LProcess::init(string interface, string cgroup) {
+  stringstream ss;
+  Utils::systemCmd(ss.str());
+}
+
+LProcess::LProcess(string n, int pid) : Guest(n) {
+  init(DEFAULT_INTERFACE, pid);
+}
+
+LProcess::LProcess(string n, string interface, int pid) : Guest(n) {
+  init(interface, pid);
+}
+
+void LProcess::init(string interface, int pid) {
 }
 
 LProcess::~LProcess() {
@@ -10,38 +31,38 @@ string LProcess::getType() const {
   return TYPE_LPROCESS;
 }
 
-float LProcess::get_cpu_usage() {
+float LProcess::getCpuUsage() {
 }
 
-float LProcess::get_soft_cpu_shares() {
+float LProcess::getSoftCpuShares() {
 }
 
-float LProcess::get_hard_cpu_shares() {
+float LProcess::getHardCpuShares() {
 }
 
-int LProcess::get_pinned_cpus() {
+int LProcess::getPinnedCpus() {
 }
 
-float LProcess::get_network_in_usage() {
+float LProcess::getNetworkInUsage() {
 }
 
-float LProcess::get_network_out_usage() {
+float LProcess::getNetworkOutUsage() {
 }
 
-float LProcess::get_network_in_allocation() {
+float LProcess::getNetworkInAllocation() {
 }
 
-float LProcess::get_network_out_allocation() {
+float LProcess::getNetworkOutAllocation() {
 }
 
-void LProcess::set_soft_cpu_shares(float shares) {
+void LProcess::setSoftCpuShares(float shares) {
 }
 
-void LProcess::set_hard_cpu_shares(float shares) {
+void LProcess::setHardCpuShares(float shares) {
 }
 
-void LProcess::set_network_in_bw(float bw) {
+void LProcess::setNetworkInBW(float bw) {
 }
 
-void LProcess::set_network_out_bw(float bw) {
+void LProcess::setNetworkOutBW(float bw) {
 }

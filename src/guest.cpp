@@ -15,58 +15,50 @@ bool Guest::equals(const Guest& guest) const {
           this->getName().compare(guest.getName()));
 }
 
-void Guest::systemCmd(string cmd, int ret) {
-  if(ret != system(cmd.c_str())) {
-    cout<<"unsuccessful to run command: "<<cmd<<" ";
-    LOG_POS();
-    assert(0);
-  }
-}
-
-float Guest::get_cpu_usage() {
+float Guest::getCpuUsage() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::get_soft_cpu_shares() {
+float Guest::getSoftCpuShares() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::get_hard_cpu_shares() {
+float Guest::getHardCpuShares() {
   SHOULD_NOT_REACH();
 }
 
-int Guest::get_pinned_cpus() {
+int Guest::getPinnedCpus() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::get_network_in_usage() {
+float Guest::getNetworkInUsage() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::get_network_out_usage() {
+float Guest::getNetworkOutUsage() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::get_network_in_allocation() {
+float Guest::getNetworkInAllocation() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::get_network_out_allocation() {
+float Guest::getNetworkOutAllocation() {
   SHOULD_NOT_REACH();
 }
 
-void Guest::set_soft_cpu_shares(float shares) {
+void Guest::setSoftCpuShares(float shares) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::set_hard_cpu_shares(float shares) {
+void Guest::setHardCpuShares(float shares) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::set_network_in_bw(float bw) {
+void Guest::setNetworkInBW(float bw) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::set_network_out_bw(float bw) {
+void Guest::setNetworkOutBW(float bw) {
   SHOULD_NOT_REACH();
 }

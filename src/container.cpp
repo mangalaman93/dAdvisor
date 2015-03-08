@@ -10,38 +10,38 @@ string Container::getType() const {
   return TYPE_CONTAINER;
 }
 
-float Container::get_cpu_usage() {
+float Container::getCpuUsage() {
 }
 
-float Container::get_soft_cpu_shares() {
+float Container::getSoftCpuShares() {
 }
 
-float Container::get_hard_cpu_shares() {
+float Container::getHardCpuShares() {
 }
 
-int Container::get_pinned_cpus() {
+int Container::getPinnedCpus() {
 }
 
-float Container::get_network_in_usage() {
+float Container::getNetworkInUsage() {
 }
 
-float Container::get_network_out_usage() {
+float Container::getNetworkOutUsage() {
 }
 
-float Container::get_network_in_allocation() {
+float Container::getNetworkInAllocation() {
 }
 
-float Container::get_network_out_allocation() {
+float Container::getNetworkOutAllocation() {
 }
 
-void Container::set_soft_cpu_shares(float shares) {
+void Container::setSoftCpuShares(float shares) {
 }
 
-void Container::set_hard_cpu_shares(float shares) {
+void Container::setHardCpuShares(float shares) {
 }
 
-void Container::set_network_in_bw(float bw) {
+void Container::setNetworkInBW(float bw) {
 }
 
-void Container::set_network_out_bw(float bw) {
+void Container::setNetworkOutBW(float bw) {
 }

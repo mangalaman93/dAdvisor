@@ -23,7 +23,7 @@ $(ODIR)/%_test.o: $(TDIR)/%_test.cpp $(DEPS)
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: dir main
+all: dir main compiletest
 
 dir:
 	mkdir -p $(ODIR)
@@ -31,9 +31,12 @@ dir:
 main: $(OBJ)
 	$(CC) -I$(IDIR) -o $(ODIR)/demo $^ ex/demo.cpp $(LIBS)
 
-test: clean dir $(TOBJ)
+compiletest: $(TOBJ)
 	@$(foreach t,$(TOBJ), $(CC) -o $(patsubst %_test.o,%,$(t))_test\
-$(t) -lcppunit $(LIBS) && ./$(patsubst %_test.o,%,$(t))_test;)
+$(t) -lcppunit $(LIBS);)
+
+test: all
+	@$(foreach t,$(TOBJ), ./$(patsubst %_test.o,%,$(t))_test;)
 
 clean:
 	rm -rf $(ODIR) *~

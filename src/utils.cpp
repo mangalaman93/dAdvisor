@@ -72,3 +72,32 @@ string Utils::getIPAddr(string interface) {
   string ip(host);
   return ip;
 }
+
+void Utils::readFile(const string& path, string& content) {
+  fstream file(path, fstream::in);
+  if(file.good()) {
+    file.seekg(0, ios::end);
+    content.resize(file.tellg());
+    file.seekg(0, ios::beg);
+    file.read(&content[0], content.size());
+    file.close();
+  } else {
+    perror("unable to read file");
+    LOG_POS();
+    exit(EXIT_FAILURE);
+  }
+}
+
+void Utils::writeFile(const string& path, const string& content) {
+  fstream file(path, fstream::out | fstream::trunc);
+  if(file.good()) {
+    file.write(content.c_str(), content.length());
+    file.write("\n", 1);
+  } else {
+    perror("unable to write to file");
+    LOG_POS();
+    exit(EXIT_FAILURE);
+  }
+
+  file.close();
+}

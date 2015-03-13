@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <ifaddrs.h>
 #include <iostream>
 #include <netdb.h>
@@ -32,6 +33,8 @@ public:
   static int systemCmd(const string& cmd, string& out);
   static void systemCmd(const string& cmd, string& out, int ret);
   static string getIPAddr(string interface);
+  void readFile(const string& path, string& content);
+  void writeFile(const string& path, const string& content);
 };
 
 #endif

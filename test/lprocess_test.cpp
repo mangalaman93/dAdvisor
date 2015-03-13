@@ -24,6 +24,25 @@ public:
     Utils::systemCmd("iperf -s");
   }
 
+  static void *runStress(void *arg) {
+    int num_cpu = *((int*)arg);
+    stringstream ss;
+    ss<<"stress -c "<<num_cpu;
+    Utils::systemCmd(ss.str());
+  }
+
+  int getStressPID() {
+    string spid;
+    Utils::systemCmd("ps ax | grep stress | awk 'NR==2 {print $1}'", spid, 0);
+    int pid = atoi(spid.c_str());
+    if(pid == 0) {
+      perror("could not find pid of stress process!");
+      exit(EXIT_FAILURE);
+    } else {
+      return pid;
+    }
+  }
+
   void testSetNetworkInBW() {
     // doesn't work if filter <match ip dport 5001 0xffff> is added
     LProcess *lp = new LProcess("iperf", "lo", "", 123);

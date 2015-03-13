@@ -69,6 +69,15 @@ string LProcess::getType() const {
 }
 
 float LProcess::getCpuUsage() {
+  if(is_pid) {
+    stringstream ss;
+    ss<<"ps -p "<<pid<<" -o %cpu | awk 'NR==2' | tr -d ' '";
+    string result;
+    Utils::systemCmd(ss.str(), result, 0);
+    return stof(result.c_str());
+  } else if(is_cgroup) {
+    // @todo
+  }
 }
 
 float LProcess::getSoftCpuShares() {

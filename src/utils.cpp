@@ -37,3 +37,38 @@ void Utils::systemCmd(const string& cmd, string& out, int ret) {
     assert(0);
   }
 }
+
+string Utils::getIPAddr(string interface) {
+  struct ifaddrs *ifaddr, *ifa;
+  char host[NI_MAXHOST];
+
+  // getting IP addresses
+  if(getifaddrs(&ifaddr) == -1) {
+    LOG_POS();
+    exit(EXIT_FAILURE);
+  }
+
+  for(ifa=ifaddr; ifa!=NULL; ifa=ifa->ifa_next) {
+    if(ifa->ifa_addr == NULL) {
+      continue;
+    }
+
+    int s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in), host,
+                        NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
+
+    if((strcmp(ifa->ifa_name, interface.c_str()) == 0) &&
+       (ifa->ifa_addr->sa_family == AF_INET)) {
+      if(s != 0) {
+        printf("getnameinfo() failed: %s\n", gai_strerror(s));
+        LOG_POS();
+        exit(EXIT_FAILURE);
+      }
+
+      break;
+    }
+  }
+
+  freeifaddrs(ifaddr);
+  string ip(host);
+  return ip;
+}

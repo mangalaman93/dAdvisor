@@ -21,14 +21,14 @@ public:
   }
 
   static void *runServer(void *arg) {
-    Utils::systemCmd("iperf -s", 0);
+    Utils::systemCmd("iperf -s");
   }
 
   void testSetNetworkInBW() {
-    LProcess *lp = new LProcess("iperf", "lo");
+    LProcess *lp = new LProcess("iperf", "lo", "", 123);
 
     // setting up incoming bandwidth to be 4KB/s
-    lp->setNetworkInBW(4);
+    lp->setNetworkInBW(4*1024);
 
     // creating server
     pthread_t server;
@@ -46,9 +46,23 @@ public:
     string bw_str;
     Utils::systemCmd(ss.str(), bw_str, 0);
     float bw = stof(bw_str);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(bw, 4, 0.1);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(bw/8, 4, 0.5);
+
+    // second test
+    lp->setNetworkInBW(2*1024);
+    result.clear();
+    Utils::systemCmd("iperf -c localhost", result, 0);
+
+    // grep-ing bandwidth and comparing
+    ss.str("");
+    ss<<"echo \""<<result<<"\" | "<<"awk '{print $(NF-1)}'";
+    bw_str.clear();
+    Utils::systemCmd(ss.str(), bw_str, 0);
+    bw = stof(bw_str);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(bw/8, 2, 0.5);
 
     // clean up
+    Utils::systemCmd("killall -9 iperf");
     rc = pthread_join(server, NULL);
     assert(rc == 0);
     delete lp;

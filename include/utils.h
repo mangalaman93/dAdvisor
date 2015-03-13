@@ -1,9 +1,16 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <arpa/inet.h>
 #include <cassert>
+#include <cstdio>
 #include <cstdlib>
+#include <ifaddrs.h>
 #include <iostream>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <unistd.h>
 using namespace std;
 
 // logs current position in file
@@ -24,6 +31,7 @@ public:
   static void systemCmd(const string& cmd, int ret);
   static int systemCmd(const string& cmd, string& out);
   static void systemCmd(const string& cmd, string& out, int ret);
+  static string getIPAddr(string interface);
 };
 
 #endif

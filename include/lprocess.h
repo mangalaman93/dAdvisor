@@ -16,15 +16,24 @@
 using namespace std;
 
 class LProcess : public Guest {
-  void init(string interface, string cgroup);
-  void init(string interface, int pid);
+  bool is_pid;
+  bool is_cgroup;
+  int pid;
+  string interface;
+  string cgroup;
+  string filter;
+  float in_bw, out_bw;
+
+  void init(string iface, string filter, string cgroup);
+  void init(string iface, string filter, int pid);
+  void delNetRules();
+  void initNetRules();
 
 public:
-  LProcess(string n);
-  LProcess(string n, string cgroup);
-  LProcess(string n, string interface, string cgroup);
-  LProcess(string n, int pid);
-  LProcess(string n, string interface, int pid);
+  LProcess(string n, string filter, string cgroup);
+  LProcess(string n, string iface, string filter, string cgroup);
+  LProcess(string n, string filter, int pid);
+  LProcess(string n, string iface, string filter, int pid);
   ~LProcess();
 
   // implementation of virtual functions

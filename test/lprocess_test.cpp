@@ -25,6 +25,7 @@ public:
   }
 
   void testSetNetworkInBW() {
+    // doesn't work if filter <match ip dport 5001 0xffff> is added
     LProcess *lp = new LProcess("iperf", "lo", "", 123);
 
     // setting up incoming bandwidth to be 4KB/s
@@ -66,7 +67,7 @@ public:
     rc = pthread_join(server, NULL);
     assert(rc == 0);
     delete lp;
-   }
+  }
 
   CPPUNIT_TEST_SUITE(LProcessTest);
   CPPUNIT_TEST(testSetNetworkInBW);

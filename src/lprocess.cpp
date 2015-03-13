@@ -113,7 +113,7 @@ void LProcess::setNetworkInBW(float bw) {
 
     ss<<"tc filter add dev "<<this->interface;
     ss<<" protocol ip parent 1:0 prio 1 u32 match ip dst "<<ip.c_str();
-    ss<<"/32 flowid 1:1";
+    ss<<"/32 "<<this->filter<<" flowid 1:1";
     Utils::systemCmd(ss.str(), 0);
   } else {
     in_bw = bw;

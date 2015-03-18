@@ -1,22 +1,7 @@
 #include "lprocess.h"
 
-LProcess::LProcess(string n, string filter, string cgroup) : Guest(n) {
-  init(DEFAULT_INTERFACE, filter, cgroup);
-}
-
-LProcess::LProcess(string n, string iface, string filter, string cgroup) : Guest(n) {
-  init(iface, filter, cgroup);
-}
-
-LProcess::LProcess(string n, string filter, int pid) : Guest(n) {
-  init(DEFAULT_INTERFACE, filter, pid);
-}
-
-LProcess::LProcess(string n, string iface, string filter, int pid) : Guest(n) {
-  init(iface, filter, pid);
-}
-
-void LProcess::init(string iface, string filter, string cgroup) {
+LProcess::LProcess(string n, string iface, string filter, string cgroup)
+    : Guest(n) {
   this->is_pid = false;
   this->is_cgroup = true;
   this->interface = iface;
@@ -31,7 +16,7 @@ void LProcess::init(string iface, string filter, string cgroup) {
   out_bw = 0;
 }
 
-void LProcess::init(string iface, string filter, int pid) {
+LProcess::LProcess(string n, string iface, string filter, int pid) : Guest(n) {
   this->is_pid = true;
   this->is_cgroup = false;
   this->interface = iface;

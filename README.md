@@ -1,5 +1,5 @@
 ## dAdvisor
-Dynamic Resource Control and Monitoring
+Dynamic Resource Control and Monitoring Framework
 
 ## Dependency
 * tc for traffic shaping
@@ -7,5 +7,4 @@ Dynamic Resource Control and Monitoring
 * `iperf`, `stress` for running tests
 
 ## TODO
-* Contaier class & tests
 * Monitor class & tests

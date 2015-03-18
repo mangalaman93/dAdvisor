@@ -1,8 +1,10 @@
 /* Provides cpu and network control for a linux process,
-    uses cpulimit if pid of the process
+    uses cpulimit if pid of the process is given
     uses cgroups if a process(es) cgroup is provided
     uses tc to control incoming and outgoing network traffitc
      on the interface provided
+  Note that docker containers can also be controlled by providing
+    "docker/<id>" as a cgroup of a process
 */
 
 #ifndef LPROCESS_H
@@ -24,15 +26,11 @@ class LProcess : public Guest {
   string filter;
   float in_bw, out_bw;
 
-  void init(string iface, string filter, string cgroup);
-  void init(string iface, string filter, int pid);
   void delNetRules();
   void initNetRules();
 
 public:
-  LProcess(string n, string filter, string cgroup);
   LProcess(string n, string iface, string filter, string cgroup);
-  LProcess(string n, string filter, int pid);
   LProcess(string n, string iface, string filter, int pid);
   ~LProcess();
 

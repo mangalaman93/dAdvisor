@@ -8,10 +8,10 @@ ODIR = bin
 TDIR = test
 LIBS = -lm -lpthread
 
-_DEPS = config.h utils.h guest.h lprocess.h container.h monitor.h
+_DEPS = config.h utils.h guest.h lprocess.h monitor.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = utils.o guest.o lprocess.o container.o monitor.o
+_OBJ = utils.o guest.o lprocess.o monitor.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 _TOBJ = util_test.o lprocess_test.o

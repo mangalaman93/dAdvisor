@@ -11,11 +11,9 @@
 
 class UtilsTest : public CppUnit::TestFixture {
 public:
-  void setUp() {
-  }
+  void setUp() {}
 
-  void tearDown() {
-  }
+  void tearDown() {}
 
   void test_system_cmd() {
     string out;

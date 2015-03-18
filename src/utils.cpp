@@ -1,7 +1,7 @@
 #include "utils.h"
 
 int Utils::systemCmd(const string& cmd) {
-  FILE* pipe{ popen(cmd.c_str(), "r")};
+  FILE* pipe{popen(cmd.c_str(), "r")};
 
   // the exit status is in top 16 bits
   return (pclose(pipe)/256);
@@ -18,7 +18,7 @@ void Utils::systemCmd(const string& cmd, int ret) {
 }
 
 int Utils::systemCmd(const string& cmd, string& out) {
-  FILE* pipe{ popen(cmd.c_str(), "r")};
+  FILE* pipe{popen(cmd.c_str(), "r")};
 
   char buffer[256];
   while(fgets(buffer, sizeof(buffer), pipe) != NULL) {
@@ -93,11 +93,10 @@ void Utils::writeFile(const string& path, const string& content) {
   if(file.good()) {
     file.write(content.c_str(), content.length());
     file.write("\n", 1);
+    file.close();
   } else {
     perror("unable to write to file");
     LOG_POS();
     exit(EXIT_FAILURE);
   }
-
-  file.close();
 }

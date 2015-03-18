@@ -5,7 +5,7 @@
 #define TYPE_LPROCESS "lprocess"
 
 // period before collect usage again
-#define USAGE_CHECK_PERIOD 0.5
+#define USAGE_CHECK_PERIOD 50000
 
 // cgroup path
 #define BASE_URL "/sys/fs/cgroup/"

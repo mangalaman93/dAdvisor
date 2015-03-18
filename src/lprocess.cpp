@@ -53,6 +53,30 @@ string LProcess::getType() const {
   return TYPE_LPROCESS;
 }
 
+// returns total CPU usage (user+system)
+int LProcess::getCumCpuUsage() {
+  stringstream ss;
+  ss << BASE_URL << CPUACCT_URL << cgroup << CPU_STAT_FILE;
+  string file_path = ss.str();
+
+  string content;
+  Utils::readFile(file_path, content);
+
+  // creating a copy of content array
+  int length = content.length();
+  char *ccontent = new char[length+1];
+  memcpy(ccontent, content.c_str(), length);
+  ccontent[length] = '\0';
+
+  // parsing the cpuacct.stat file content
+  strtok(ccontent, " ");
+  int user_usage = atoi(strtok(NULL, "\n"));
+  strtok(NULL, " ");
+  int system_usage = atoi(strtok(NULL, "\n"));
+
+  return (system_usage+user_usage);
+}
+
 float LProcess::getCpuUsage() {
   if(is_pid) {
     stringstream ss;
@@ -61,7 +85,10 @@ float LProcess::getCpuUsage() {
     Utils::systemCmd(ss.str(), result, 0);
     return stof(result.c_str());
   } else if(is_cgroup) {
-    // @todo
+    int before_usage = this->getCumCpuUsage();
+    usleep(USAGE_CHECK_PERIOD);
+    int after_usage = this->getCumCpuUsage();
+    return (float)(after_usage-before_usage)/USAGE_CHECK_PERIOD;
   }
 }
 

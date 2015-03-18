@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 #include "config.h"
 #include "guest.h"
 #include "utils.h"
@@ -28,6 +29,7 @@ class LProcess : public Guest {
 
   void delNetRules();
   void initNetRules();
+  int getCumCpuUsage();
 
 public:
   LProcess(string n, string iface, string filter, string cgroup);

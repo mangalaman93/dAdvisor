@@ -37,10 +37,10 @@ public:
   // get cpu usage, 100 => 1 core
   virtual float getCpuUsage();
 
-  // get current allocated CPU shares (soft limit) out of 1024
+  // get current allocated CPU shares (soft limit) out of 100
   virtual float getSoftCpuShares();
 
-  // get current allocated CPU shares (hard limit) out of 1024
+  // get current allocated CPU shares (hard limit) out of 100
   virtual float getHardCpuShares();
 
   // maximum number of CPU that can possibly be used by the guest (CPU pinning)
@@ -58,10 +58,10 @@ public:
   // current allocated bandwidth for outgoing network traffic (in kbytes/sec)
   virtual float getNetworkOutAllocation();
 
-  // change given value of cpu shares for the container, shares=1024 => 1 core
+  // change given value of cpu shares for the container, shares=100 => 1 core
   virtual void setSoftCpuShares(float shares);
 
-  // change current allocated CPU shares (hard limit), shares=1024 => 1 core
+  // change current allocated CPU shares (hard limit), shares=100 => 1 core
   virtual void setHardCpuShares(float shares);
 
   // change limit on received traffic on network, bw in kbytes/sec

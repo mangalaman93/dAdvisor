@@ -12,20 +12,12 @@
 #include "../src/lprocess.cpp"
 
 class LProcessTest : public CppUnit::TestFixture {
-public:
-  void setUp() {
-  }
-
-  void tearDown() {
-    Utils::systemCmd("killall -9 iperf");
-  }
-
   static void *runServer(void *arg) {
     Utils::systemCmd("iperf -s");
   }
 
   static void *runStress(void *arg) {
-    int num_cpu = *((int*)arg);
+    long num_cpu = (long)arg;
     stringstream ss;
     ss<<"stress -c "<<num_cpu;
     Utils::systemCmd(ss.str());
@@ -43,12 +35,43 @@ public:
     }
   }
 
+public:
+  void testGetCpuUsage() {
+  }
+
+  void testGetSoftCpuShares() {
+  }
+
+  void testGetHardCpuShares() {
+  }
+
+  void testGetPinnedCpus() {
+  }
+
+  void testGetNetworkInUsage() {
+  }
+
+  void testGetNetworkOutUsage() {
+  }
+
+  void testGetNetworkInAllocation() {
+  }
+
+  void testGetNetworkOutAllocation() {
+  }
+
+  void testsetSoftCpuShares() {
+  }
+
+  void testsetHardCpuShares() {
+  }
+
   void testSetNetworkInBW() {
     // doesn't work if filter <match ip dport 5001 0xffff> is added
-    LProcess *lp = new LProcess("iperf", "lo", "", 123);
+    LProcess lp("iperf", "lo", "", 123);
 
     // setting up incoming bandwidth to be 4KB/s
-    lp->setNetworkInBW(4*1024);
+    lp.setNetworkInBW(4*1024);
 
     // creating server
     pthread_t server;
@@ -69,7 +92,7 @@ public:
     CPPUNIT_ASSERT_DOUBLES_EQUAL(bw/8, 4, 0.5);
 
     // second test
-    lp->setNetworkInBW(2*1024);
+    lp.setNetworkInBW(2*1024);
     result.clear();
     Utils::systemCmd("iperf -c localhost", result, 0);
 
@@ -85,18 +108,31 @@ public:
     Utils::systemCmd("killall -9 iperf");
     rc = pthread_join(server, NULL);
     assert(rc == 0);
-    delete lp;
+  }
+
+  void testSetNetworkOutBW() {
   }
 
   CPPUNIT_TEST_SUITE(LProcessTest);
+  CPPUNIT_TEST(testGetCpuUsage);
+  CPPUNIT_TEST(testGetSoftCpuShares);
+  CPPUNIT_TEST(testGetHardCpuShares);
+  CPPUNIT_TEST(testGetPinnedCpus);
+  CPPUNIT_TEST(testGetNetworkInUsage);
+  CPPUNIT_TEST(testGetNetworkOutUsage);
+  CPPUNIT_TEST(testGetNetworkInAllocation);
+  CPPUNIT_TEST(testGetNetworkOutAllocation);
+  CPPUNIT_TEST(testsetSoftCpuShares);
+  CPPUNIT_TEST(testsetHardCpuShares);
   CPPUNIT_TEST(testSetNetworkInBW);
+  CPPUNIT_TEST(testSetNetworkOutBW);
   CPPUNIT_TEST_SUITE_END();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(LProcessTest);
 
 int main() {
-   // Get the top level suite from the registry
+  // Get the top level suite from the registry
   CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
 
   // Adds the test to the list of test to run

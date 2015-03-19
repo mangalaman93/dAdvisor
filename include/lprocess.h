@@ -25,11 +25,15 @@ class LProcess : public Guest {
   string interface;
   string cgroup;
   string filter;
+
   float in_bw, out_bw;
+  int shares;
 
   void delNetRules();
   void initNetRules();
   int getCumCpuUsage();
+  float getNetworkUsageHelper(string file);
+  int getCumNetworkUsage(string file);
 
 public:
   LProcess(string n, string iface, string filter, string cgroup);

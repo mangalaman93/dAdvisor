@@ -8,3 +8,4 @@ Dynamic Resource Control and Monitoring Framework
 
 ## TODO
 * Monitor class & tests
+* check LProcess & write more tests

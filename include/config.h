@@ -20,5 +20,4 @@
 #define CPU_CFS_PERIOD_FILE "cpu.cfs_period_us"
 
 // network statistics files
-#define NET_TX_FILE "/sys/devices/virtual/net/eth0/statistics/tx_bytes"
-#define NET_RX_FILE "/sys/devices/virtual/net/eth0/statistics/rx_bytes"
+#define NET_FILE_PREFIX "/sys/class/net/"

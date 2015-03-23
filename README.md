@@ -7,5 +7,7 @@ Dynamic Resource Control and Monitoring Framework
 * `iperf`, `stress` for running tests
 
 ## TODO
-* Monitor class & tests
-* check LProcess & write more tests
+* write more tests
+* setting up control commands and usage communication using evpath
+* SDN
+* scenarios

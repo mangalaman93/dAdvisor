@@ -1,7 +1,7 @@
 IDIR = include
 CC = g++
 DEBUG =
-CFLAGS = -Wall -std=c++11 -c $(DEBUG) -I$(IDIR)
+CFLAGS = -Wall -std=c++11 $(DEBUG) -I$(IDIR)
 
 SDIR = src
 ODIR = bin
@@ -18,10 +18,10 @@ _TOBJ = util_test.o lprocess_test.o
 TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ))
 
 $(ODIR)/%_test.o: $(TDIR)/%_test.cpp $(DEPS)
-	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 all: dir main compiletest
 
@@ -29,7 +29,7 @@ dir:
 	mkdir -p $(ODIR)
 
 main: $(OBJ)
-	$(CC) -I$(IDIR) -o $(ODIR)/demo $^ ex/demo.cpp $(LIBS)
+	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/demo $^ ex/demo.cpp $(LIBS)
 
 compiletest: $(TOBJ)
 	@$(foreach t,$(TOBJ), $(CC) -o $(patsubst %_test.o,%,$(t))_test\

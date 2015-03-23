@@ -21,3 +21,13 @@
 
 // network statistics files
 #define NET_FILE_PREFIX "/sys/class/net/"
+
+// monitoring parameters
+// period of monitoring in sec
+#define TRIGGER_PERIOD 4
+
+// allocation safety factor
+#define SAFETY_FACTOR 0.8
+
+// increase allocation by a factor of 0.2
+#define INCREMENT_FACTOR 0.2

@@ -263,8 +263,8 @@ void LProcess::setSoftCpuShares(float shares) {
 /* ref: http://blog.scoutapp.com/articles/2014/11/04/ */
 void LProcess::setHardCpuShares(float shares) {
   if(shares > this->getPinnedCpus()*100) {
-    cout<<"trying to allocate shares more than available!"<<endl;
-    SHOULD_NOT_REACH();
+    cout<<"Error: trying to allocate shares more than available!"<<endl;
+    return;
   }
 
   if(is_pid) {

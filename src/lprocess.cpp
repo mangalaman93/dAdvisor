@@ -174,11 +174,12 @@ int LProcess::getPinnedCpus() {
 
   bool flag = false;
   int total_cpus = 0;
+  cpu_str.push_back(',');
   for(int i=0; i<cpu_str.length(); i++) {
-    while(true) {
-      char num[5];
-      int j=0;
+    char num[5];
+    int j=0;
 
+    while(true) {
       if(cpu_str[i] == ',') {
         if(flag) {
           num[j] = '\0';

@@ -84,10 +84,11 @@ float LProcess::getCpuUsage() {
 
   if(is_pid) {
     stringstream ss;
-    ss<<"ps -p "<<pid<<" -o %cpu | awk 'NR==2' | tr -d ' '";
+    ss<<"top -b -d 1 -p "<<this->pid<<" -n 2 | grep ";
+    ss<<this->pid<<" | tail -n 1 | awk '{print $(NF-1)}'";
     string result;
-    Utils::systemCmd(ss.str(), result, 0);
-    cpu_usage = stof(result.c_str());
+    Utils::systemCmd(ss.str(), result);
+    cpu_usage = atof(result.c_str());
   } else if(is_cgroup) {
     int before_usage = this->getCumCpuUsage();
     usleep(USAGE_CHECK_PERIOD);

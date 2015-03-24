@@ -30,6 +30,9 @@ dir:
 
 main: $(OBJ)
 	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/demo $^ ex/demo.cpp $(LIBS)
+	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/demo $^ ex/client.cpp $(LIBS)
+	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/demo $^ ex/server.cpp $(LIBS)
+	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/demo $^ ex/snort.cpp $(LIBS)
 
 compiletest: $(TOBJ)
 	@$(foreach t,$(TOBJ), $(CC) -o $(patsubst %_test.o,%,$(t))_test\

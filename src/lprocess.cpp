@@ -84,7 +84,7 @@ float LProcess::getCpuUsage() {
 
   if(is_pid) {
     stringstream ss;
-    ss<<"top -b -d 1 -p "<<this->pid<<" -n 2 | grep ";
+    ss<<"top -b -w 60 -d 1 -p "<<this->pid<<" -n 2 | grep ";
     ss<<this->pid<<" | tail -n 1 | awk '{print $(NF-1)}'";
     string result;
     Utils::systemCmd(ss.str(), result);

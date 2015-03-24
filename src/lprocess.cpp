@@ -271,7 +271,7 @@ void LProcess::setHardCpuShares(float shares) {
 
     int limit = (int)shares;
     stringstream ss;
-    ss<<"sudo cpulimit -bqz -p "<<this->pid<<" -l "<<limit;
+    ss<<"sudo cpulimit -bz -p "<<this->pid<<" -l "<<limit;
     Utils::systemCmd(ss.str());
   } else if(is_cgroup) {
     stringstream ss;

@@ -102,7 +102,7 @@ float LProcess::getSoftCpuShares() {
   float soft_shares;
 
   if(is_pid) {
-    soft_shares = shares;
+    soft_shares = this->shares;
   } else if(is_cgroup) {
     stringstream ss;
     ss<<BASE_URL<<CPU_URL<<cgroup<<CPU_SHARES_FILE;
@@ -145,23 +145,25 @@ float LProcess::getHardCpuShares() {
 
 int LProcess::getPinnedCpus() {
   string cpu_str;
+  cpu_str.clear();
 
   if(is_pid) {
     stringstream ss;
     ss<<"taskset -c -p "<<this->pid;
     string result;
     Utils::systemCmd(ss.str(), result);
-    char *str;
+
+    int index;
     for(int i=0; i<result.length(); i++) {
       if(result[i] == ':') {
-        str = &(result[i+1]);
+        index = i;
         break;
       }
     }
 
-    int i = 1;
-    while(str[i] != '\n' || str[i] != '\0') {
-      cpu_str.push_back(str[i]);
+    index += 2;
+    for(int i=index; i<result.length(); i++) {
+      cpu_str.push_back(result[i]);
     }
   } else if(is_cgroup) {
     stringstream ss;

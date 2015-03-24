@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
   } else {
     LProcess lp("voip", "eth0", "", atoi(argv[1]));
     lp.setHardCpuShares(10);
+    sleep(2);
 
     SimpleMonitor monitor;
     monitor.addGuest(&lp);

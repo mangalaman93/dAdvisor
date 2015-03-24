@@ -217,11 +217,12 @@ int LProcess::getCumNetworkUsage(string file) {
   return atoi(result.c_str());
 }
 
+// in kbytes/s
 float LProcess::getNetworkUsageHelper(string file) {
   int before_usage = this->getCumNetworkUsage(file);
   usleep(USAGE_CHECK_PERIOD);
   int after_usage = this->getCumNetworkUsage(file);
-  return ((after_usage-before_usage)*(1000000/USAGE_CHECK_PERIOD));
+  return ((after_usage-before_usage)*(1000000/USAGE_CHECK_PERIOD))/1024;
 }
 
 float LProcess::getNetworkInUsage() {

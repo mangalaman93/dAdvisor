@@ -59,7 +59,6 @@ int main(int argc, char **argv)
     char *str = attr_list_to_string(CMget_contact_list(cm));
     data.id = new char[strlen(str)+6];
     sprintf(data.id, "%d:%s", rstone, str);
-    printf("%s\n", data.id);
     data.cpu_usage = 100;
     data.network_in_usage = 1000;
     data.network_out_usage = 100;
@@ -67,7 +66,7 @@ int main(int argc, char **argv)
 
     // sending usage
     while(true) {
-        sleep(TRIGGER_PERIOD);
+        CMsleep(cm, TRIGGER_PERIOD);
         data.cpu_usage = lp->getCpuUsage();
         data.network_in_usage = lp->getNetworkInUsage();
         data.network_out_usage = lp->getNetworkOutUsage();

@@ -23,10 +23,12 @@ alloc_handler(CManager cm, void *vevent, void *client_data, attr_list attrs)
             new_alloc.cpu_alloc = client.cpu_alloc*(1+INCREMENT_FACTOR);
         }
 
+        new_alloc.network_in_alloc = -1;
         if(client.network_in_alloc*SAFETY_FACTOR < event->network_in_usage) {
             new_alloc.network_in_alloc = client.network_in_alloc*(1+INCREMENT_FACTOR);
         }
 
+        new_alloc.network_out_alloc = -1;
         if(client.network_out_alloc*SAFETY_FACTOR < event->network_out_usage) {
             new_alloc.network_out_alloc = client.network_out_alloc*(1+INCREMENT_FACTOR);
         }
@@ -47,7 +49,6 @@ alloc_handler(CManager cm, void *vevent, void *client_data, attr_list attrs)
         EVstone sstone = EValloc_stone(cm);
         contact_list = attr_list_from_string(string_list);
         EVassoc_bridge_action(cm, sstone, contact_list, remote_stone);
-        printf("trying to connect to %d:%s\n", remote_stone, string_list);
         clients[event->id] = EVcreate_submit_handle(cm, sstone, command_list);
 
         // new client

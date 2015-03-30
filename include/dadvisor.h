@@ -1,8 +1,9 @@
 #ifndef DADVISOR_H
 #define DADVISOR_H
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include "evpath.h"
 
 typedef struct _usage_info {

@@ -4,8 +4,10 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <map>
 #include "config.h"
 #include "evpath.h"
+#include "lprocess.h"
 
 typedef struct _usage_info {
     char* id;

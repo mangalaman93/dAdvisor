@@ -57,8 +57,9 @@ int main(int argc, char **argv)
     // sending usage
     usage_info data;
     char *str = attr_list_to_string(CMget_contact_list(cm));
-    data.id = new char[strlen(str)+2];
-    sprintf(data.id, "%d:%s", rstone, string_list);
+    data.id = new char[strlen(str)+6];
+    sprintf(data.id, "%d:%s", rstone, str);
+    printf("%s\n", data.id);
     data.cpu_usage = 100;
     data.network_in_usage = 1000;
     data.network_out_usage = 100;

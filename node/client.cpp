@@ -24,10 +24,23 @@ int main(int argc, char **argv)
     EVassoc_bridge_action(cm, stone, contact_list, remote_stone);
 
     source = EVcreate_submit_handle(cm, stone, simple_format_list);
-    data.id = "node id";
-    data.cpu_usage = 3.4;
-    data.network_in_usage = 4.5;
-    data.network_out_usage = 55.6;
+    LProcess lp("client", "eth0", "", atoi(argv[2]));
+    lp.setHardCpuShares(100);
+    lp.setNetworkInBW(1000);
+    lp.setNetworkOutBW(100);
+
+    data.id = "client";
+    data.cpu_usage = 100;
+    data.network_in_usage = 1000;
+    data.network_out_usage = 100;
     EVsubmit(source, &data, NULL);
+    while(true) {
+        sleep(TRIGGER_PERIOD);
+        data.cpu_usage = lp.getCpuUsage();
+        data.network_in_usage = lp.getNetworkInUsage();
+        data.network_out_usage = lp.getNetworkOutUsage();
+        EVsubmit(source, &data, NULL);
+    }
+
     return 0;
 }

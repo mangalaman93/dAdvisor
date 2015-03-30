@@ -7,7 +7,7 @@
 #include "evpath.h"
 
 typedef struct _usage_info {
-    string id;
+    char* id;
     double cpu_usage;
     double network_in_usage;
     double network_out_usage;

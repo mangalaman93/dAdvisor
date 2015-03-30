@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     contact_list = attr_list_from_string(string_list);
     EVassoc_bridge_action(cm, stone, contact_list, remote_stone);
 
-    source = EVcreate_submit_handle(cm, stone, usage_field_list);
+    source = EVcreate_submit_handle(cm, stone, simple_format_list);
     data.id = "node id";
     data.cpu_usage = 3.4;
     data.network_in_usage = 4.5;

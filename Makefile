@@ -33,6 +33,7 @@ main: $(OBJ)
 	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/client $^ ex/client.cpp $(LIBS)
 	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/server $^ ex/server.cpp $(LIBS)
 	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/snort $^ ex/snort.cpp $(LIBS)
+	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/usage $^ ex/usage.cpp $(LIBS)
 
 compiletest: $(TOBJ)
 	@$(foreach t,$(TOBJ), $(CC) -o $(patsubst %_test.o,%,$(t))_test\

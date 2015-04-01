@@ -6,8 +6,5 @@ Dynamic Resource Control and Monitoring Framework
 * `cppunit` for running test
 * `iperf`, `stress` for running tests
 
-## TODO
-* write more tests
-* setting up control commands and usage communication using evpath
-* SDN
-* scenarios
+## CmakeLists.txt file
+* ADD_SUBDIRECTORY( dAdvisor)

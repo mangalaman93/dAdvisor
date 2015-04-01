@@ -209,33 +209,29 @@ int LProcess::getPinnedCpus() {
   return total_cpus;
 }
 
-int LProcess::getCumNetworkUsage(string file) {
-  string result;
-  stringstream ss;
-  ss<<"cat "+file;
-  Utils::systemCmd(ss.str(), result);
-
-  return atoi(result.c_str());
-}
-
 // in kbytes/s
-float LProcess::getNetworkUsageHelper(string file) {
-  int before_usage = this->getCumNetworkUsage(file);
+float LProcess::getCumNetworkUsage(string cmd) {
+  string result;
+  Utils::systemCmd(cmd, result);
+  int before_usage = atoi(result.c_str());
+
   usleep(USAGE_CHECK_PERIOD);
-  int after_usage = this->getCumNetworkUsage(file);
+  result.clear();
+  Utils::systemCmd(cmd, result);
+  int after_usage = atoi(result.c_str());
   return ((after_usage-before_usage)*(1000000/USAGE_CHECK_PERIOD))/1024;
 }
 
 float LProcess::getNetworkInUsage() {
   stringstream ss;
-  ss<<NET_FILE_PREFIX<<interface<<"/statistics/rx_bytes";
-  return this->getNetworkUsageHelper(ss.str());
+  ss<<"cat /proc/"<<this->pid<<+"/net/dev | awk '/"<<this->interface<<"/ {print $"<<2<<"}'";
+  return this->getCumNetworkUsage(ss.str());
 }
 
 float LProcess::getNetworkOutUsage() {
   stringstream ss;
-  ss<<NET_FILE_PREFIX<<interface<<"/statistics/tx_bytes";
-  return this->getNetworkUsageHelper(ss.str());
+  ss<<"cat /proc/"<<this->pid<<+"/net/dev | awk '/"<<this->interface<<"/ {print $"<<10<<"}'";
+  return this->getCumNetworkUsage(ss.str());
 }
 
 float LProcess::getNetworkInAllocation() {

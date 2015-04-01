@@ -5,7 +5,7 @@
 #define TYPE_LPROCESS "lprocess"
 
 // period before collect usage again
-#define USAGE_CHECK_PERIOD 50000
+#define USAGE_CHECK_PERIOD 500000
 
 // cgroup path
 #define BASE_URL "/sys/fs/cgroup/"
@@ -18,9 +18,6 @@
 #define CPUSET_FILE "cpuset.cpus"
 #define CPU_CFS_QUOTA_FILE "cpu.cfs_quota_us"
 #define CPU_CFS_PERIOD_FILE "cpu.cfs_period_us"
-
-// network statistics files
-#define NET_FILE_PREFIX "/sys/class/net/"
 
 // monitoring parameters
 // period of monitoring in sec

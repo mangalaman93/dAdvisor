@@ -32,8 +32,7 @@ class LProcess : public Guest {
   void delNetRules();
   void initNetRules();
   int getCumCpuUsage();
-  float getNetworkUsageHelper(string file);
-  int getCumNetworkUsage(string file);
+  float getCumNetworkUsage(string cmd);
 
 public:
   LProcess(string n, string iface, string filter, string cgroup);

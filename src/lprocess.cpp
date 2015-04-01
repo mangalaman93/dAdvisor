@@ -318,22 +318,22 @@ void LProcess::setNetworkOutBW(float bw) {
     out_bw = bw;
     stringstream ss;
     ss<<"tc class add dev "<<this->interface;
-    ss<<" parent 1: classid 1:2 htb rate ";
+    ss<<" parent 1: classid 1:30 htb rate ";
     ss<<out_bw<<"kbps ceil "<<out_bw<<"kbps";
     Utils::systemCmd(ss.str(), 0);
 
-    ss.str("");
-    string ip = Utils::getIPAddr(this->interface);
+    // ss.str("");
+    // string ip = Utils::getIPAddr(this->interface);
 
-    ss<<"tc filter add dev "<<this->interface;
-    ss<<" protocol ip parent 1:0 prio 1 u32 match ip dst "<<ip.c_str();
-    ss<<"/32 "<<this->filter<<" flowid 1:2";
-    Utils::systemCmd(ss.str(), 0);
+    // ss<<"tc filter add dev "<<this->interface;
+    // ss<<" protocol ip parent 1:0 prio 1 u32 match ip dst "<<ip.c_str();
+    // ss<<"/32 "<<this->filter<<" flowid 1:2";
+    // Utils::systemCmd(ss.str(), 0);
   } else {
     out_bw = bw;
     stringstream ss;
     ss<<"tc class change dev "<<this->interface;
-    ss<<" parent 1: classid 1:2 htb rate ";
+    ss<<" parent 1: classid 1:30 htb rate ";
     ss<<out_bw<<"kbps ceil "<<out_bw<<"kbps";
     Utils::systemCmd(ss.str(), 0);
   }

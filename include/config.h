@@ -21,7 +21,7 @@
 
 // monitoring parameters
 // period of monitoring in sec
-#define TRIGGER_PERIOD 2
+#define TRIGGER_PERIOD 1
 
 // allocation safety factor
 #define SAFETY_FACTOR 0.8

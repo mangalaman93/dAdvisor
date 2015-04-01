@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     EVstone rstone = EValloc_stone(cm);
     EVassoc_terminal_action(cm, rstone, data_list, alloc_handler, NULL);
     char *string_list = attr_list_to_string(CMget_contact_list(cm));
-    printf("Contact list \"%d:%s\"\n", rstone, string_list);
+    fprintf(stderr, "Contact list \"%d:%s\"\n", rstone, string_list);
     CMrun_network(cm);
     return 0;
 }

@@ -8,7 +8,6 @@ int main(int argc, char *argv[]) {
     LProcess lp("app", "eth0", "", atoi(argv[1]));
 
     while(true){
-      sleep(1);
       float usage = lp.getCpuUsage();
       float netin = lp.getNetworkInUsage();
       float netout = lp.getNetworkOutUsage();

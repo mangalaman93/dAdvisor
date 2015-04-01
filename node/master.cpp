@@ -3,37 +3,44 @@
 static CManager cm;
 static map<string, alloc_info> cinfo;
 static map<string, EVsource> clients;
+static int count = 0;
 
 static int
 alloc_handler(CManager cm, void *vevent, void *client_data, attr_list attrs)
 {
     usage_info_ptr event = (usage_info_ptr)vevent;
-    printf("%s => %f, %f, %f\n",
-        event->id, event->cpu_usage, event->network_in_usage, event->network_out_usage);
+    // printf("%s => %f, %f, %f\n",
+    //     event->id, event->cpu_usage, event->network_in_usage, event->network_out_usage);
+    printf("%f\t", event->network_out_usage);
 
     if(cinfo.count(event->id) > 0)
     {
-        // we know the client and the bridge exists
-        alloc_info client = cinfo[event->id];
-        alloc_info new_alloc;
-        new_alloc.id = "master";
+        if(count == 5) {
+            count = 0;
 
-        new_alloc.cpu_alloc = -1;
-        if(client.cpu_alloc*SAFETY_FACTOR < event->cpu_usage) {
-            new_alloc.cpu_alloc = client.cpu_alloc*(1+INCREMENT_FACTOR);
+            // we know the client and the bridge exists
+            alloc_info client = cinfo[event->id];
+            alloc_info new_alloc;
+            new_alloc.id = "master";
+
+            // new_alloc.cpu_alloc = -1;
+            // if(client.cpu_alloc*SAFETY_FACTOR < event->cpu_usage) {
+            //     new_alloc.cpu_alloc = client.cpu_alloc*(1+INCREMENT_FACTOR);
+            // }
+
+            // new_alloc.network_in_alloc = -1;
+            // if(client.network_in_alloc*SAFETY_FACTOR < event->network_in_usage) {
+            //     new_alloc.network_in_alloc = client.network_in_alloc*(1+INCREMENT_FACTOR);
+            // }
+
+            new_alloc.network_out_alloc = -1;
+            if(client.network_out_alloc*SAFETY_FACTOR < event->network_out_usage) {
+                new_alloc.network_out_alloc = client.network_out_alloc*(1+INCREMENT_FACTOR);
+                cinfo[event->id] = new_alloc;
+            }
+
+            EVsubmit(clients[event->id], &new_alloc, NULL);
         }
-
-        new_alloc.network_in_alloc = -1;
-        if(client.network_in_alloc*SAFETY_FACTOR < event->network_in_usage) {
-            new_alloc.network_in_alloc = client.network_in_alloc*(1+INCREMENT_FACTOR);
-        }
-
-        new_alloc.network_out_alloc = -1;
-        if(client.network_out_alloc*SAFETY_FACTOR < event->network_out_usage) {
-            new_alloc.network_out_alloc = client.network_out_alloc*(1+INCREMENT_FACTOR);
-        }
-
-        EVsubmit(clients[event->id], &new_alloc, NULL);
     } else
     {
         char string_list[2048];
@@ -60,6 +67,9 @@ alloc_handler(CManager cm, void *vevent, void *client_data, attr_list attrs)
         client.network_out_alloc = event->network_in_usage;
         cinfo[event->id] = client;
     }
+
+    printf("%2f\n", cinfo[event->id].network_out_alloc);
+    count++;
 
     return 1;
 }

@@ -319,7 +319,7 @@ void LProcess::setNetworkOutBW(float bw) {
     stringstream ss;
     ss<<"tc class add dev "<<this->interface;
     ss<<" parent 1: classid 1:2 htb rate ";
-    ss<<out_bw<<"kbps";
+    ss<<out_bw<<"kbps ceil "<<out_bw<<"kbps";
     Utils::systemCmd(ss.str(), 0);
 
     ss.str("");
@@ -333,7 +333,8 @@ void LProcess::setNetworkOutBW(float bw) {
     out_bw = bw;
     stringstream ss;
     ss<<"tc class change dev "<<this->interface;
-    ss<<" parent 1: classid 1:2 htb rate "<<out_bw<<"kbps";
+    ss<<" parent 1: classid 1:2 htb rate ";
+    ss<<out_bw<<"kbps ceil "<<out_bw<<"kbps";
     Utils::systemCmd(ss.str(), 0);
   }
 }

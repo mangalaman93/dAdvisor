@@ -68,7 +68,7 @@ public:
 
   void testSetNetworkInBW() {
     // doesn't work if filter <match ip dport 5001 0xffff> is added
-    LProcess lp("iperf", "lo", "", 123);
+    LProcess lp("iperf", 123, "lo");
 
     // setting up incoming bandwidth to be 4KB/s
     lp.setNetworkInBW(4*1024);

@@ -1,24 +1,26 @@
 #include "utils.h"
 
 int Utils::systemCmd(const string& cmd) {
-  FILE* pipe{popen(cmd.c_str(), "r")};
+  FILE* pipe{ popen(cmd.c_str(), "r")};
+  assert(pipe);
 
   // the exit status is in top 16 bits
   return (pclose(pipe)/256);
 }
 
 void Utils::systemCmd(const string& cmd, int ret) {
-  FILE* pipe{ popen(cmd.c_str(), "r")};
-  int r = (pclose(pipe)/256);
+  int r = Utils::systemCmd(cmd);
+
   if(ret != r) {
-    cout<<"unsuccessful to run command: \""<<cmd<<"\" ";
+    cout<<"unsuccessful to run command: \""<<cmd<<"\"!";
     LOG_POS();
     assert(0);
   }
 }
 
 int Utils::systemCmd(const string& cmd, string& out) {
-  FILE* pipe{popen(cmd.c_str(), "r")};
+  FILE* pipe{ popen(cmd.c_str(), "r")};
+  assert(pipe);
 
   char buffer[256];
   while(fgets(buffer, sizeof(buffer), pipe) != NULL) {
@@ -31,8 +33,9 @@ int Utils::systemCmd(const string& cmd, string& out) {
 
 void Utils::systemCmd(const string& cmd, string& out, int ret) {
   int r = Utils::systemCmd(cmd, out);
+
   if(ret != r) {
-    cout<<"unsuccessful to run command: \""<<cmd<<"\" ";
+    cout<<"unsuccessful to run command: \""<<cmd<<"\"!";
     LOG_POS();
     assert(0);
   }
@@ -59,7 +62,7 @@ string Utils::getIPAddr(string interface) {
     if((strcmp(ifa->ifa_name, interface.c_str()) == 0) &&
        (ifa->ifa_addr->sa_family == AF_INET)) {
       if(s != 0) {
-        printf("getnameinfo() failed: %s\n", gai_strerror(s));
+        printf("getnameinfo() failed: %s!\n", gai_strerror(s));
         LOG_POS();
         exit(EXIT_FAILURE);
       }
@@ -82,7 +85,7 @@ void Utils::readFile(const string& path, string& content) {
     file.read(&content[0], content.size());
     file.close();
   } else {
-    perror("unable to read file");
+    perror("unable to read file!");
     LOG_POS();
     exit(EXIT_FAILURE);
   }
@@ -95,7 +98,7 @@ void Utils::writeFile(const string& path, const string& content) {
     file.write("\n", 1);
     file.close();
   } else {
-    perror("unable to write to file");
+    perror("unable to write to file!");
     LOG_POS();
     exit(EXIT_FAILURE);
   }

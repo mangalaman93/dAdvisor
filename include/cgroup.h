@@ -1,26 +1,30 @@
-#ifndef LPROCESS_H
-#define LPROCESS_H
+#ifndef CGROUP_H
+#define CGROUP_H
 
+#include <iomanip>
 #include <sstream>
 #include "config.h"
 #include "guest.h"
 #include "utils.h"
-using namespace std;
 
-class LProcess : public Guest {
-  int pid;
-  int shares;
+class CGroup : public Guest {
+  string cgroup;
   string interface;
+  string filter;
   int last_handle;
   float bw;
+  int pid;
 
+  int getCumCPUUsage();
   void initNetRules();
   void delNetRules();
+  float getCumNetworkUsage(string cmd);
 
 public:
-  LProcess(string n, int pid, string iface);
-  ~LProcess();
-  string getType() const;
+  CGroup(string n, string cgroup, string iface);
+  ~CGroup();
+
+  string getType() const = 0;
   float getCPUUsage();
   float getSoftCPUShares();
   float getHardCPUShares();

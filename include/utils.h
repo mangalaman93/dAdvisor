@@ -5,25 +5,25 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <ifaddrs.h>
 #include <iostream>
 #include <netdb.h>
 #include <sys/socket.h>
-#include <string.h>
 #include <unistd.h>
 using namespace std;
 
 // logs current position in file
-#define LOG_POS() do {\
-  cout<<"line:"<<__LINE__<<" in file:"<<__FILE__<<endl;\
+#define LOG_POS() do {                                     \
+  cout<<"line:"<<__LINE__<<" in file:"<<__FILE__<<endl;    \
 } while(0);
 
 // aborts execution of program
-#define SHOULD_NOT_REACH() do {\
-  cout<<"should not reach ";\
-  LOG_POS();\
-  assert(0);\
+#define SHOULD_NOT_REACH() do {                            \
+  cout<<"should not reach ";                               \
+  LOG_POS();                                               \
+  assert(0);                                               \
 } while(0);
 
 class Utils {

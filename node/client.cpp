@@ -11,7 +11,7 @@ cmd_handler(CManager cm, void *vevent, void *client_data, attr_list attrs)
     printf("%2f\n", event->network_out_alloc);
 
     // if(event->cpu_alloc > 0) {
-    //     lp->setHardCpuShares(event->cpu_alloc);
+    //     lp->setHardCPUShares(event->cpu_alloc);
     // }
 
     // if(event->network_in_alloc > 0) {
@@ -50,8 +50,8 @@ int main(int argc, char **argv)
 
     // sending allocation
     EVsource source = EVcreate_submit_handle(cm, sstone, data_list);
-    lp = new LProcess("client", "eth0", "", atoi(argv[2]));
-    // lp->setHardCpuShares(100);
+    lp = new LProcess("client", atoi(argv[2]), "eth0");
+    // lp->setHardCPUShares(100);
     // lp->setNetworkInBW(1000);
     lp->setNetworkOutBW(1000);
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     // sending usage
     while(true) {
         CMsleep(cm, TRIGGER_PERIOD);
-        data.cpu_usage = lp->getCpuUsage();
+        data.cpu_usage = lp->getCPUUsage();
         data.network_in_usage = lp->getNetworkInUsage();
         data.network_out_usage = lp->getNetworkOutUsage();
         // printf("%2f\t%2f\t%2f\n",

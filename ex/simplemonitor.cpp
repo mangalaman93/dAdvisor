@@ -6,28 +6,17 @@ class SimpleMonitor : public Monitor {
 private:
   void checkAndSet(Guest *guest) {
     // CPU allocation
-    float usage = guest->getCpuUsage();
-    float allocation = guest->getHardCpuShares();
+    float usage = guest->getCPUUsage();
+    float allocation = guest->getHardCPUShares();
     cout<<"usage "<<usage<<", allocation "<<allocation<<" for guest ";
     cout<<guest->getName()<<endl;
 
     if(allocation*SAFETY_FACTOR < usage) {
       cout<<"=> usage is about to cross"<<endl;
-      guest->setHardCpuShares(allocation*(1+INCREMENT_FACTOR));
+      guest->setHardCPUShares(allocation*(1+INCREMENT_FACTOR));
     }
 
-    // Network In allocation
-    usage = guest->getNetworkInUsage();
-    allocation = guest->getNetworkInAllocation();
-    cout<<"net in usage "<<usage<<", allocation "<<allocation<<" for guest ";
-    cout<<guest->getName()<<endl;
-
-    if(allocation*SAFETY_FACTOR < usage) {
-      cout<<"=> net in usage is about to cross"<<endl;
-      guest->setNetworkInBW(allocation*(1+INCREMENT_FACTOR));
-    }
-
-    // Network Our allocation
+    // Network Out allocation
     usage = guest->getNetworkOutUsage();
     allocation = guest->getNetworkOutAllocation();
     cout<<"net Out usage "<<usage<<", allocation "<<allocation<<" for guest ";

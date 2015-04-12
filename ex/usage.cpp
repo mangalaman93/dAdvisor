@@ -5,13 +5,12 @@ int main(int argc, char *argv[]) {
   if(argc != 2) {
     cout<<"usage: "<<argv[0]<<" <pid>"<<endl;
   } else {
-    LProcess lp("app", "eth0", "", atoi(argv[1]));
+    LProcess lp("app", atoi(argv[1]), "eth0");
 
     while(true){
-      float usage = lp.getCpuUsage();
-      float netin = lp.getNetworkInUsage();
+      float usage = lp.getCPUUsage();
       float netout = lp.getNetworkOutUsage();
-      cout<<usage<<"\t"<<netin<<"\t"<<netout<<endl;
+      cout<<usage<<"\t"<<netout<<endl;
     }
   }
 

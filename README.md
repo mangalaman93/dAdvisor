@@ -7,4 +7,4 @@ Dynamic Resource Control and Monitoring Framework
 * `iperf`, `stress` for running tests
 
 ## CmakeLists.txt file
-* ADD_SUBDIRECTORY( dAdvisor)
+* ADD_SUBDIRECTORY(dAdvisor)

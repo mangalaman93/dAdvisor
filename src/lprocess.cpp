@@ -33,24 +33,25 @@ string LProcess::getType() const {
   return TYPE_LPROCESS;
 }
 
-float LProcess::getCPUUsage() {
+unsigned long LProcess::getCPUCumUsage() {
   stringstream ss;
-  ss<<"top -b -w 60 -d 1 -p "<<this->pid<<" -n 2 | grep ";
-  ss<<this->pid<<" | tail -n 1 | awk '{print $(NF-1)}'";
+  ss<<"cat /proc/"<<this->pid<<"/stat | awk '{ sum=0;";
+  ss<<" sum+=($13+$14+$15+$16+$17)} END {print sum}'";
+
   string result;
   Utils::systemCmd(ss.str(), result);
-  return atof(result.c_str());
+  return atoi(result.c_str());
 }
 
-float LProcess::getHardCPUShares() {
+unsigned int LProcess::getHardCPUShares() {
   return this->shares;
 }
 
-float LProcess::getSoftCPUShares() {
+unsigned int LProcess::getSoftCPUShares() {
   return this->shares;
 }
 
-int LProcess::getPinnedCPUs() {
+unsigned int LProcess::getPinnedCPUs() {
   string cpu_str;
   stringstream ss;
   ss<<"taskset -c -p "<<this->pid;
@@ -107,11 +108,11 @@ int LProcess::getPinnedCPUs() {
   return total_cpus;
 }
 
-void LProcess::setSoftCPUShares(float shares) {
+void LProcess::setSoftCPUShares(unsigned int shares) {
   this->setHardCPUShares(shares);
 }
 
-void LProcess::setHardCPUShares(float shares) {
+void LProcess::setHardCPUShares(unsigned int shares) {
   if(shares > this->getPinnedCPUs()*100) {
     cout<<"Error: trying to allocate shares more than available!"<<endl;
     return;
@@ -120,25 +121,19 @@ void LProcess::setHardCPUShares(float shares) {
   this->shares = shares;
   Utils::systemCmd("sudo killall -9 cpulimit");
 
-  int limit = (int)shares;
   stringstream ss;
-  ss<<"sudo cpulimit -bz -p "<<this->pid<<" -l "<<limit;
+  ss<<"sudo cpulimit -bz -p "<<this->pid<<" -l "<<shares*100/1024;
   Utils::systemCmd(ss.str());
 }
 
-float LProcess::getNetworkOutUsage() {
+unsigned long LProcess::getNetworkOutCumUsage() {
   stringstream ss;
-  ss<<NET_FOLDER<<this->interface<<+"statistics/tx_bytes";
+  ss<<"cat /proc/"<<this->pid<<+"/net/dev | awk '/";
+  ss<<this->interface<<"/ {print $10}'";
 
   string result;
-  Utils::readFile(ss.str(), result);
-  int before_usage = atoi(result.c_str());
-
-  usleep(USAGE_CHECK_PERIOD);
-  result.clear();
-  Utils::readFile(ss.str(), result);
-  int after_usage = atoi(result.c_str());
-  return ((after_usage-before_usage)*(1000000/USAGE_CHECK_PERIOD))/1024;
+  Utils::systemCmd(ss.str(), result);
+  return atoi(result.c_str());
 }
 
 float LProcess::getNetworkOutAllocation() {

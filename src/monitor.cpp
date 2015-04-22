@@ -14,7 +14,7 @@ void Monitor::addGuest(Guest *guest) {
 
 void Monitor::run() {
   while(!this->is_done) {
-    sleep(TRIGGER_PERIOD);
+    sleep(USAGE_CHECK_PERIOD);
 
     if(gobjs.size() <= 0) {
       continue;

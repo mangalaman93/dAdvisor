@@ -8,8 +8,8 @@ int main(int argc, char *argv[]) {
     LProcess lp("app", atoi(argv[1]), "eth0");
 
     while(true){
-      float usage = lp.getCPUUsage();
-      float netout = lp.getNetworkOutUsage();
+      float usage = lp.getCPUCumUsage();
+      float netout = lp.getNetworkOutCumUsage();
       cout<<usage<<"\t"<<netout<<endl;
     }
   }

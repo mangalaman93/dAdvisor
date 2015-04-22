@@ -1,49 +1,40 @@
-#include "cgroup.h"
+#include "container.h"
 
-void CGroup::initNetRules() {
+void Container::initNetRules() {
   stringstream ss;
-  ss<<"tc qdisc add dev "<<this->interface<<" root handle 1:0 htb default ";
-  ss<<this->last_handle;
+  ss<<"nsenter -t $(docker inspect --format '{{ .State.Pid }}' ";
+  ss<<this->id<<") -n tc qdisc add dev "<<DEFAULT_DOCKER_IFACE;
+  ss<<" root handle 1: htb default 10";
   Utils::systemCmd(ss.str(), 0);
 }
 
-void CGroup::delNetRules() {
+void Container::delNetRules() {
   stringstream ss;
-  ss<<"tc qdisc del dev "<<this->interface<<" root";
+  ss<<"nsenter -t $(docker inspect --format '{{ .State.Pid }}' ";
+  ss<<this->id<<") -n tc qdisc del dev "<<DEFAULT_DOCKER_IFACE<<" root";
   Utils::systemCmd(ss.str());
 }
 
-CGroup::CGroup(string n, string cgroup, string iface)
-    : Guest(n) {
-  this->cgroup = cgroup;
-  this->interface = iface;
-  this->last_handle = DEFAULT_HANDLE;
+Container::Container(string n, string id) : Guest(n) {
+  this->id = id;
   this->delNetRules();
   this->initNetRules();
 
   // other settings
   this->bw = -1;
-
-  // get the pid of the process running for network metrics
-  stringstream ss;
-  ss<<"cat "<<BASE_URL<<NET_CLASS<<"/"<<this->cgroup<<"/"<<TASKS_FILE;
-  ss<<" | head -1";
-  string result;
-  Utils::systemCmd(ss.str(), result);
-  this->pid = atoi(result.c_str());
 }
 
-CGroup::~CGroup() {
+Container::~Container() {
   this->delNetRules();
 }
 
-string CGroup::getType() const {
-  return TYPE_CGROUP;
+string Container::getType() const {
+  return TYPE_CONTAINER;
 }
 
-unsigned long CGroup::getCPUCumUsage() {
+unsigned long Container::getCPUCumUsage() {
   stringstream ss;
-  ss<<BASE_URL<<CPUACCT_URL<<this->cgroup<<CPU_STAT_FILE;
+  ss<<BASE_URL<<CPUACCT_URL<<DOCKER_URL<<this->id<<"/"<<CPU_STAT_FILE;
   string file_path = ss.str();
 
   string content;
@@ -65,17 +56,17 @@ unsigned long CGroup::getCPUCumUsage() {
   return (system_usage+user_usage);
 }
 
-unsigned int CGroup::getSoftCPUShares() {
+unsigned int Container::getSoftCPUShares() {
   stringstream ss;
-  ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_SHARES_FILE;
+  ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_SHARES_FILE;
   string content;
   Utils::readFile(ss.str(), content);
   return atoi(content.c_str());
 }
 
-unsigned int CGroup::getHardCPUShares() {
+unsigned int Container::getHardCPUShares() {
   stringstream ss;
-  ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_QUOTA_FILE;
+  ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_CFS_QUOTA_FILE;
   string content;
   Utils::readFile(ss.str(), content);
   int current_quota = atoi(content.c_str());
@@ -84,7 +75,7 @@ unsigned int CGroup::getHardCPUShares() {
     return 1024;
   } else {
     ss.str("");
-    ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_PERIOD_FILE;
+    ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_CFS_PERIOD_FILE;
     content.clear();
     Utils::readFile(ss.str(), content);
     int period = atoi(content.c_str());
@@ -92,12 +83,12 @@ unsigned int CGroup::getHardCPUShares() {
   }
 }
 
-unsigned int CGroup::getPinnedCPUs() {
+unsigned int Container::getPinnedCPUs() {
   string cpu_str;
   cpu_str.clear();
 
   stringstream ss;
-  ss<<BASE_URL<<CPUSET_URL<<this->cgroup<<CPUSET_FILE;
+  ss<<BASE_URL<<CPUSET_URL<<DOCKER_URL<<this->id<<"/"<<CPUSET_FILE;
   Utils::readFile(ss.str(), cpu_str);
 
   bool flag = false;
@@ -137,70 +128,64 @@ unsigned int CGroup::getPinnedCPUs() {
   return total_cpus;
 }
 
-void CGroup::setSoftCPUShares(unsigned int shares) {
+void Container::setSoftCPUShares(unsigned int shares) {
   stringstream ss;
-  ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_SHARES_FILE;
+  ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_SHARES_FILE;
 
   stringstream content;
   content<<shares;
   Utils::writeFile(ss.str(), content.str());
 }
 
-void CGroup::setHardCPUShares(unsigned int shares) {
+void Container::setHardCPUShares(unsigned int shares) {
   if(shares > this->getPinnedCPUs()*1024) {
     cout<<"Error: trying to allocate shares more than available!"<<endl;
     return;
   }
 
   stringstream ss;
-  ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_PERIOD_FILE;
+  ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_CFS_PERIOD_FILE;
 
   string period_content;
   Utils::readFile(ss.str(), period_content);
   int period = atoi(period_content.c_str());
 
   ss.str("");
-  ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_QUOTA_FILE;
+  ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_CFS_QUOTA_FILE;
   stringstream content;
   int quota = int(shares/1024*int(period));
   content<<quota;
   Utils::writeFile(ss.str(), content.str());
 }
 
-unsigned long CGroup::getNetworkOutCumUsage() {
+unsigned long Container::getNetworkOutCumUsage() {
   stringstream ss;
-  ss<<"cat /proc/"<<this->pid<<+"/net/dev | awk '/";
-  ss<<this->interface<<"/ {print $"<<10<<"}'";
+  ss<<"docker exec "<<this->id<<" cat "<<NET_TX_FILE;
 
   string result;
   Utils::systemCmd(ss.str(), result);
   return atoi(result.c_str());
 }
 
-float CGroup::getNetworkOutAllocation() {
+float Container::getNetworkOutAllocation() {
   return bw;
 }
 
-void CGroup::setNetworkOutBW(float bw) {
+void Container::setNetworkOutBW(float bw) {
   if(this->bw == -1) {
     this->bw = bw;
-    this->last_handle += DEFAULT_HANDLE;
 
     stringstream ss;
-    ss<<"tc class add dev "<<this->interface;
-    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate ";
-    ss<<this->bw<<"kbps";
-    Utils::systemCmd(ss.str(), 0);
-
-    ss.str("");
-    ss<<"echo 0x1"<<setfill('0')<<setw(4)<<this->last_handle<<" > ";
-    ss<<BASE_URL<<NET_CLASS<<"/"<<this->cgroup<<"/"<<CLASSID_FILE;
+    ss<<"nsenter -t $(docker inspect --format '{{ .State.Pid }}' "<<this->id;
+    ss<<") -n tc class add dev "<<DEFAULT_DOCKER_IFACE<<" parent 1: classid";
+    ss<<" 1:10 htb rate "<<bw<<"kbps";
     Utils::systemCmd(ss.str(), 0);
   } else {
     this->bw = bw;
     stringstream ss;
-    ss<<"tc class change dev "<<this->interface;
-    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw<<"kbps";
+    ss<<"nsenter -t $(docker inspect --format '{{ .State.Pid }}' "<<this->id;
+    ss<<") -n tc class change dev "<<DEFAULT_DOCKER_IFACE<<" parent 1: classid";
+    ss<<" 1:10 htb rate "<<bw<<"kbps";
     Utils::systemCmd(ss.str(), 0);
   }
 }

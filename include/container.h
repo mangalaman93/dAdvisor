@@ -1,5 +1,5 @@
-#ifndef CGROUP_H
-#define CGROUP_H
+#ifndef CONTAINER_H
+#define CONTAINER_H
 
 #include <iomanip>
 #include <sstream>
@@ -7,19 +7,15 @@
 #include "guest.h"
 #include "utils.h"
 
-class CGroup : public Guest {
-  string cgroup;
-  string interface;
-  string filter;
-  int last_handle;
+class Container : public Guest {
+  string id;
   float bw;
-  int pid;
   void initNetRules();
   void delNetRules();
 
 public:
-  CGroup(string n, string cgroup, string iface);
-  ~CGroup();
+  Container(string n, string id);
+  ~Container();
   string getType() const;
   unsigned long getCPUCumUsage();
   unsigned int getSoftCPUShares();

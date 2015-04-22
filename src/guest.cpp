@@ -15,11 +15,11 @@ bool Guest::equals(const Guest& guest) const {
           guest.getName().compare(this->getName()));
 }
 
-float Guest::getNetworkInUsage() {
+unsigned long Guest::getNetworkInCumUsage() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::getNetworkOutUsage() {
+unsigned long Guest::getNetworkOutCumUsage() {
   SHOULD_NOT_REACH();
 }
 
@@ -39,30 +39,30 @@ void Guest::setNetworkOutBW(float bw) {
   SHOULD_NOT_REACH();
 }
 
-float Guest::getCPUUsage() {
+unsigned long Guest::getCPUCumUsage() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::getSoftCPUShares() {
+unsigned int Guest::getSoftCPUShares() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::getHardCPUShares() {
+unsigned int Guest::getHardCPUShares() {
   SHOULD_NOT_REACH();
 }
 
-int Guest::getPinnedCPUs() {
+unsigned int Guest::getPinnedCPUs() {
   SHOULD_NOT_REACH();
 }
 
-void Guest::setSoftCPUShares(float shares) {
+void Guest::setSoftCPUShares(unsigned int shares) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::setHardCPUShares(float shares) {
+void Guest::setHardCPUShares(unsigned int shares) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::setPinnedCPUs(int num_cpus) {
+void Guest::setPinnedCPUs(unsigned int num_cpus) {
   SHOULD_NOT_REACH();
 }

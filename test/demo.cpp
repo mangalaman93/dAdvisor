@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     lp.setNetworkOutBW(10);
     sleep(2);
 
-    SimpleMonitor monitor;
+    SimpleMonitor monitor(true, true);
     monitor.addGuest(&lp);
     monitor.run();
   }

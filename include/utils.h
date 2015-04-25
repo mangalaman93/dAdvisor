@@ -10,6 +10,7 @@
 #include <ifaddrs.h>
 #include <iostream>
 #include <netdb.h>
+#include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
 using namespace std;

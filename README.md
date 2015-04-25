@@ -3,8 +3,7 @@ Dynamic Resource Control and Monitoring Framework
 
 ## Dependency
 * tc for traffic shaping
-* `cppunit` for running test
-* `iperf`, `stress` for running tests
+* `cpulimit` for limit cpu resources for a linux process
 
 ## CmakeLists.txt file
-* ADD_SUBDIRECTORY(dAdvisor)
+* ADD_SUBDIRECTORY(dadvisor)

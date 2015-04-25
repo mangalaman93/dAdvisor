@@ -13,6 +13,24 @@ void CGroup::delNetRules() {
   Utils::systemCmd(ss.str());
 }
 
+string CGroup::getStringBW(float bw) {
+  stringstream ss;
+
+  if(bw < 1024) {
+    ss<<bw<<"b/1s";
+  } else if(bw < 1024*1024) {
+    bw = bw/1024;
+    ss<<bw<<"kbps";
+  } else if(bw < 1024*1024*1024) {
+    bw = bw/1024/1024;
+    ss<<bw<<"mbps";
+  } else {
+    ss<<bw<<"b/1s";
+  }
+
+  return ss.str();
+}
+
 CGroup::CGroup(string n, string cgroup, string iface)
     : Guest(n) {
   this->cgroup = cgroup;
@@ -22,11 +40,11 @@ CGroup::CGroup(string n, string cgroup, string iface)
   this->initNetRules();
 
   // other settings
-  this->bw = -1;
+  this->out_bw = -1;
 
   // get the pid of the process running for network metrics
   stringstream ss;
-  ss<<"cat "<<BASE_URL<<NET_CLASS<<"/"<<this->cgroup<<"/"<<TASKS_FILE;
+  ss<<"cat "<<BASE_URL<<NET_CLASS<<this->cgroup<<TASKS_FILE;
   ss<<" | head -1";
   string result;
   Utils::systemCmd(ss.str(), result);
@@ -49,31 +67,20 @@ unsigned long CGroup::getCPUCumUsage() {
   string content;
   Utils::readFile(file_path, content);
 
-  // creating a copy of content array
-  int length = content.length();
-  char *ccontent = new char[length+1];
-  memcpy(ccontent, content.c_str(), length);
-  ccontent[length] = '\0';
-
-  // parsing the cpuacct.stat file content
-  strtok(ccontent, " ");
-  int user_usage = atoi(strtok(NULL, "\n"));
-  strtok(NULL, " ");
-  int system_usage = atoi(strtok(NULL, "\n"));
-
-  delete[] ccontent;
+  int user_usage, system_usage;
+  sscanf(content.c_str(), "user %dsystem %d", &user_usage, &system_usage);
   return (system_usage+user_usage);
 }
 
-unsigned int CGroup::getSoftCPUShares() {
+float CGroup::getSoftCPUShares() {
   stringstream ss;
   ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_SHARES_FILE;
   string content;
   Utils::readFile(ss.str(), content);
-  return atoi(content.c_str());
+  return (float)atoi(content.c_str())*100.0/1024.0;
 }
 
-unsigned int CGroup::getHardCPUShares() {
+float CGroup::getHardCPUShares() {
   stringstream ss;
   ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_QUOTA_FILE;
   string content;
@@ -81,18 +88,18 @@ unsigned int CGroup::getHardCPUShares() {
   int current_quota = atoi(content.c_str());
 
   if(current_quota == -1) {
-    return 1024;
+    return 100.0;
   } else {
     ss.str("");
     ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_PERIOD_FILE;
     content.clear();
     Utils::readFile(ss.str(), content);
     int period = atoi(content.c_str());
-    return (unsigned int)current_quota/((float)period)*1024;
+    return current_quota/((float)period)*100.0;
   }
 }
 
-unsigned int CGroup::getPinnedCPUs() {
+int CGroup::getPinnedCPUs() {
   string cpu_str;
   cpu_str.clear();
 
@@ -137,17 +144,18 @@ unsigned int CGroup::getPinnedCPUs() {
   return total_cpus;
 }
 
-void CGroup::setSoftCPUShares(unsigned int shares) {
+void CGroup::setSoftCPUShares(float shares) {
   stringstream ss;
   ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_SHARES_FILE;
 
   stringstream content;
-  content<<shares;
+  int int_shares = (int)(shares*1024/100);
+  content<<int_shares;
   Utils::writeFile(ss.str(), content.str());
 }
 
-void CGroup::setHardCPUShares(unsigned int shares) {
-  if(shares > this->getPinnedCPUs()*1024) {
+void CGroup::setHardCPUShares(float shares) {
+  if(shares > this->getPinnedCPUs()*100) {
     cout<<"Error: trying to allocate shares more than available!"<<endl;
     return;
   }
@@ -162,7 +170,7 @@ void CGroup::setHardCPUShares(unsigned int shares) {
   ss.str("");
   ss<<BASE_URL<<CPU_URL<<this->cgroup<<CPU_CFS_QUOTA_FILE;
   stringstream content;
-  int quota = int(shares/1024*int(period));
+  int quota = int(shares/100*int(period));
   content<<quota;
   Utils::writeFile(ss.str(), content.str());
 }
@@ -177,30 +185,38 @@ unsigned long CGroup::getNetworkOutCumUsage() {
   return atoi(result.c_str());
 }
 
-float CGroup::getNetworkOutAllocation() {
-  return bw;
+float CGroup::getNetworkOutBW() {
+  return out_bw;
 }
 
-void CGroup::setNetworkOutBW(float bw) {
-  if(this->bw == -1) {
-    this->bw = bw;
+void CGroup::setNetworkOutBW(float out_bw) {
+  if(this->out_bw == -1) {
+    this->out_bw = out_bw;
     this->last_handle += DEFAULT_HANDLE;
 
+    string bw = this->getStringBW(out_bw);
     stringstream ss;
     ss<<"tc class add dev "<<this->interface;
-    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate ";
-    ss<<this->bw<<"kbps";
+    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw;
+    Utils::systemCmd(ss.str(), 0);
+
+    ss.str("");
+    ss<<"tc filter add dev "<<this->interface;
+    ss<<" parent 1: protocol ip prio 10 handle ";
+    ss<<this->last_handle<<": cgroup";
     Utils::systemCmd(ss.str(), 0);
 
     ss.str("");
     ss<<"echo 0x1"<<setfill('0')<<setw(4)<<this->last_handle<<" > ";
-    ss<<BASE_URL<<NET_CLASS<<"/"<<this->cgroup<<"/"<<CLASSID_FILE;
+    ss<<BASE_URL<<NET_CLASS<<this->cgroup<<CLASSID_FILE;
     Utils::systemCmd(ss.str(), 0);
   } else {
-    this->bw = bw;
+    this->out_bw = out_bw;
+    string bw = this->getStringBW(out_bw);
+
     stringstream ss;
     ss<<"tc class change dev "<<this->interface;
-    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw<<"kbps";
+    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw;
     Utils::systemCmd(ss.str(), 0);
   }
 }

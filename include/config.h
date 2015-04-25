@@ -16,7 +16,7 @@
 #define CPUSET_FILE "cpuset.cpus"
 #define CPU_CFS_QUOTA_FILE "cpu.cfs_quota_us"
 #define CPU_CFS_PERIOD_FILE "cpu.cfs_period_us"
-#define NET_CLASS "net_cls"
+#define NET_CLASS "net_cls/"
 #define TASKS_FILE "tasks"
 #define CLASSID_FILE "net_cls.classid"
 #define NET_FOLDER "/sys/class/net/"

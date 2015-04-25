@@ -1,6 +1,6 @@
 IDIR = include
 CC = g++
-DEBUG =
+DEBUG = -g
 CFLAGS = -Wall -std=c++11 $(DEBUG) -I$(IDIR)
 
 SDIR = src
@@ -8,39 +8,27 @@ ODIR = bin
 TDIR = test
 LIBS = -lm -lpthread
 
-_DEPS = config.h utils.h guest.h cgroup.h container.h lprocess.h monitor.h
+_DEPS = config.h utils.h guest.h monitor.h cgroup.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = utils.o guest.o cgroup.o container.o lprocess.o monitor.o
+_OBJ = utils.o guest.o monitor.o cgroup.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-_TOBJ = util_test.o lprocess_test.o
+_TOBJ = cgroup_test
 TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ))
 
-$(ODIR)/%_test.o: $(TDIR)/%_test.cpp $(DEPS)
-	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
+$(ODIR)/%_test: $(TDIR)/%_test.cpp $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-all: dir main compiletest
+all: dir main
 
 dir:
 	mkdir -p $(ODIR)
 
-main: $(OBJ)
-	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/demo $^ ex/demo.cpp $(LIBS)
-	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/client $^ ex/client.cpp $(LIBS)
-	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/server $^ ex/server.cpp $(LIBS)
-	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/snort $^ ex/snort.cpp $(LIBS)
-	$(CC) $(CFLAGS) -I$(IDIR) -o $(ODIR)/usage $^ ex/usage.cpp $(LIBS)
-
-compiletest: $(TOBJ)
-	@$(foreach t,$(TOBJ), $(CC) -o $(patsubst %_test.o,%,$(t))_test\
-$(t) -lcppunit $(LIBS);)
-
-test: all
-	@$(foreach t,$(TOBJ), ./$(patsubst %_test.o,%,$(t))_test;)
+main: $(TOBJ)
 
 clean:
 	rm -rf $(ODIR) *~

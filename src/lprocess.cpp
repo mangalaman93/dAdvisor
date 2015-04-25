@@ -1,13 +1,13 @@
 #include "lprocess.h"
 
-void LProcess::delNetRules() {
+void LProcess::initNetRules() {
   stringstream ss;
   ss<<"tc qdisc add dev "<<this->interface<<" root handle 1:0 htb default ";
   ss<<this->last_handle;
   Utils::systemCmd(ss.str(), 0);
 }
 
-void LProcess::initNetRules() {
+void LProcess::delNetRules() {
   stringstream ss;
   ss<<"tc qdisc del dev "<<this->interface<<" root";
   Utils::systemCmd(ss.str());
@@ -119,7 +119,7 @@ void LProcess::setHardCPUShares(unsigned int shares) {
   }
 
   this->shares = shares;
-  Utils::systemCmd("sudo killall -9 cpulimit");
+  Utils::systemCmd("sudo killall cpulimit");
 
   stringstream ss;
   ss<<"sudo cpulimit -bz -p "<<this->pid<<" -l "<<shares*100/1024;

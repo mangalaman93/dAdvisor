@@ -23,11 +23,11 @@ unsigned long Guest::getNetworkOutCumUsage() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::getNetworkInAllocation() {
+float Guest::getNetworkInBW() {
   SHOULD_NOT_REACH();
 }
 
-float Guest::getNetworkOutAllocation() {
+float Guest::getNetworkOutBW() {
   SHOULD_NOT_REACH();
 }
 
@@ -43,26 +43,26 @@ unsigned long Guest::getCPUCumUsage() {
   SHOULD_NOT_REACH();
 }
 
-unsigned int Guest::getSoftCPUShares() {
+float Guest::getSoftCPUShares() {
   SHOULD_NOT_REACH();
 }
 
-unsigned int Guest::getHardCPUShares() {
+float Guest::getHardCPUShares() {
   SHOULD_NOT_REACH();
 }
 
-unsigned int Guest::getPinnedCPUs() {
+int Guest::getPinnedCPUs() {
   SHOULD_NOT_REACH();
 }
 
-void Guest::setSoftCPUShares(unsigned int shares) {
+void Guest::setSoftCPUShares(float shares) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::setHardCPUShares(unsigned int shares) {
+void Guest::setHardCPUShares(float shares) {
   SHOULD_NOT_REACH();
 }
 
-void Guest::setPinnedCPUs(unsigned int num_cpus) {
+void Guest::setPinnedCPUs(int num_cpus) {
   SHOULD_NOT_REACH();
 }

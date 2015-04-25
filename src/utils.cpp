@@ -77,18 +77,9 @@ string Utils::getIPAddr(string interface) {
 }
 
 void Utils::readFile(const string& path, string& content) {
-  fstream file(path, fstream::in);
-  if(file.good()) {
-    file.seekg(0, ios::end);
-    content.resize(file.tellg());
-    file.seekg(0, ios::beg);
-    file.read(&content[0], content.size());
-    file.close();
-  } else {
-    perror("unable to read file!");
-    LOG_POS();
-    exit(EXIT_FAILURE);
-  }
+  stringstream ss;
+  ss<<"cat "<<path;
+  systemCmd(ss.str(), content);
 }
 
 void Utils::writeFile(const string& path, const string& content) {

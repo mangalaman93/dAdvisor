@@ -8,13 +8,13 @@ ODIR = bin
 TDIR = test
 LIBS = -lm -lpthread
 
-_DEPS = config.h utils.h guest.h monitor.h cgroup.h
+_DEPS = config.h utils.h guest.h monitor.h cgroup.h container.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = utils.o guest.o monitor.o cgroup.o
+_OBJ = utils.o guest.o monitor.o cgroup.o container.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-_TOBJ = cgroup_test
+_TOBJ = cgroup_test container_test
 TOBJ = $(patsubst %,$(ODIR)/%,$(_TOBJ))
 
 $(ODIR)/%_test: $(TDIR)/%_test.cpp $(OBJ)

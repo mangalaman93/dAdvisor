@@ -9,7 +9,7 @@
 
 class Container : public Guest {
   string id;
-  float bw;
+  float out_bw;
   void initNetRules();
   void delNetRules();
 
@@ -18,13 +18,13 @@ public:
   ~Container();
   string getType() const;
   unsigned long getCPUCumUsage();
-  unsigned int getSoftCPUShares();
-  unsigned int getHardCPUShares();
-  unsigned int getPinnedCPUs();
-  void setSoftCPUShares(unsigned int shares);
-  void setHardCPUShares(unsigned int shares);
+  float getSoftCPUShares();
+  float getHardCPUShares();
+  int getPinnedCPUs();
+  void setSoftCPUShares(float shares);
+  void setHardCPUShares(float shares);
   unsigned long getNetworkOutCumUsage();
-  float getNetworkOutAllocation();
+  float getNetworkOutBW();
   void setNetworkOutBW(float bw);
 };
 

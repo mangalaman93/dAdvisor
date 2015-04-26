@@ -36,6 +36,7 @@ public:
   static string getIPAddr(string interface);
   static void readFile(const string& path, string& content);
   static void writeFile(const string& path, const string& content);
+  static string getStringBW(float bw);
 };
 
 #endif

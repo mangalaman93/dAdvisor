@@ -94,3 +94,21 @@ void Utils::writeFile(const string& path, const string& content) {
     exit(EXIT_FAILURE);
   }
 }
+
+string Utils::getStringBW(float bw) {
+  stringstream ss;
+
+  if(bw < 1024) {
+    ss<<bw<<"b/1s";
+  } else if(bw < 1024*1024) {
+    bw = bw/1024;
+    ss<<bw<<"kbps";
+  } else if(bw < 1024*1024*1024) {
+    bw = bw/1024/1024;
+    ss<<bw<<"mbps";
+  } else {
+    ss<<bw<<"b/1s";
+  }
+
+  return ss.str();
+}

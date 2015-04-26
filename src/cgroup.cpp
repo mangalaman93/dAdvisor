@@ -13,24 +13,6 @@ void CGroup::delNetRules() {
   Utils::systemCmd(ss.str());
 }
 
-string CGroup::getStringBW(float bw) {
-  stringstream ss;
-
-  if(bw < 1024) {
-    ss<<bw<<"b/1s";
-  } else if(bw < 1024*1024) {
-    bw = bw/1024;
-    ss<<bw<<"kbps";
-  } else if(bw < 1024*1024*1024) {
-    bw = bw/1024/1024;
-    ss<<bw<<"mbps";
-  } else {
-    ss<<bw<<"b/1s";
-  }
-
-  return ss.str();
-}
-
 CGroup::CGroup(string n, string cgroup, string iface)
     : Guest(n) {
   this->cgroup = cgroup;
@@ -194,7 +176,7 @@ void CGroup::setNetworkOutBW(float out_bw) {
     this->out_bw = out_bw;
     this->last_handle += DEFAULT_HANDLE;
 
-    string bw = this->getStringBW(out_bw);
+    string bw = Utils::getStringBW(out_bw);
     stringstream ss;
     ss<<"tc class add dev "<<this->interface;
     ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw;
@@ -212,7 +194,7 @@ void CGroup::setNetworkOutBW(float out_bw) {
     Utils::systemCmd(ss.str(), 0);
   } else {
     this->out_bw = out_bw;
-    string bw = this->getStringBW(out_bw);
+    string bw = Utils::getStringBW(out_bw);
 
     stringstream ss;
     ss<<"tc class change dev "<<this->interface;

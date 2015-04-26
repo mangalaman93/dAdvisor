@@ -16,12 +16,14 @@ void Container::delNetRules() {
 }
 
 Container::Container(string n, string id) : Guest(n) {
-  this->id = id;
+  stringstream ss;
+  ss<<"docker inspect --format '{{ .Id }}' "<<id;
+  Utils::systemCmd(ss.str(), this->id);
   this->delNetRules();
   this->initNetRules();
 
   // other settings
-  this->bw = -1;
+  this->out_bw = -1;
 }
 
 Container::~Container() {
@@ -40,31 +42,20 @@ unsigned long Container::getCPUCumUsage() {
   string content;
   Utils::readFile(file_path, content);
 
-  // creating a copy of content array
-  int length = content.length();
-  char *ccontent = new char[length+1];
-  memcpy(ccontent, content.c_str(), length);
-  ccontent[length] = '\0';
-
-  // parsing the cpuacct.stat file content
-  strtok(ccontent, " ");
-  int user_usage = atoi(strtok(NULL, "\n"));
-  strtok(NULL, " ");
-  int system_usage = atoi(strtok(NULL, "\n"));
-
-  delete[] ccontent;
+  int user_usage, system_usage;
+  sscanf(content.c_str(), "user %dsystem %d", &user_usage, &system_usage);
   return (system_usage+user_usage);
 }
 
-unsigned int Container::getSoftCPUShares() {
+float Container::getSoftCPUShares() {
   stringstream ss;
   ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_SHARES_FILE;
   string content;
   Utils::readFile(ss.str(), content);
-  return atoi(content.c_str());
+  return (float)atoi(content.c_str())*100.0/1024.0;
 }
 
-unsigned int Container::getHardCPUShares() {
+float Container::getHardCPUShares() {
   stringstream ss;
   ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_CFS_QUOTA_FILE;
   string content;
@@ -79,11 +70,11 @@ unsigned int Container::getHardCPUShares() {
     content.clear();
     Utils::readFile(ss.str(), content);
     int period = atoi(content.c_str());
-    return (unsigned int)current_quota/((float)period)*1024;
+    return (unsigned int)current_quota/((float)period)*100.0;
   }
 }
 
-unsigned int Container::getPinnedCPUs() {
+int Container::getPinnedCPUs() {
   string cpu_str;
   cpu_str.clear();
 
@@ -128,17 +119,18 @@ unsigned int Container::getPinnedCPUs() {
   return total_cpus;
 }
 
-void Container::setSoftCPUShares(unsigned int shares) {
+void Container::setSoftCPUShares(float shares) {
   stringstream ss;
   ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_SHARES_FILE;
 
   stringstream content;
-  content<<shares;
+  int int_shares = (int)(shares*1024.0/100.0);
+  content<<int_shares;
   Utils::writeFile(ss.str(), content.str());
 }
 
-void Container::setHardCPUShares(unsigned int shares) {
-  if(shares > this->getPinnedCPUs()*1024) {
+void Container::setHardCPUShares(float shares) {
+  if(shares > this->getPinnedCPUs()*100.0) {
     cout<<"Error: trying to allocate shares more than available!"<<endl;
     return;
   }
@@ -153,7 +145,7 @@ void Container::setHardCPUShares(unsigned int shares) {
   ss.str("");
   ss<<BASE_URL<<CPU_URL<<DOCKER_URL<<this->id<<"/"<<CPU_CFS_QUOTA_FILE;
   stringstream content;
-  int quota = int(shares/1024*int(period));
+  int quota = int(shares/100*int(period));
   content<<quota;
   Utils::writeFile(ss.str(), content.str());
 }
@@ -167,25 +159,28 @@ unsigned long Container::getNetworkOutCumUsage() {
   return atoi(result.c_str());
 }
 
-float Container::getNetworkOutAllocation() {
-  return bw;
+float Container::getNetworkOutBW() {
+  return out_bw;
 }
 
-void Container::setNetworkOutBW(float bw) {
-  if(this->bw == -1) {
-    this->bw = bw;
+void Container::setNetworkOutBW(float out_bw) {
+  if(this->out_bw == -1) {
+    this->out_bw = out_bw;
+    string bw = Utils::getStringBW(out_bw);
 
     stringstream ss;
     ss<<"nsenter -t $(docker inspect --format '{{ .State.Pid }}' "<<this->id;
     ss<<") -n tc class add dev "<<DEFAULT_DOCKER_IFACE<<" parent 1: classid";
-    ss<<" 1:10 htb rate "<<bw<<"kbps";
+    ss<<" 1:10 htb rate "<<bw;
     Utils::systemCmd(ss.str(), 0);
   } else {
-    this->bw = bw;
+    this->out_bw = out_bw;
+    string bw = Utils::getStringBW(out_bw);
+
     stringstream ss;
     ss<<"nsenter -t $(docker inspect --format '{{ .State.Pid }}' "<<this->id;
     ss<<") -n tc class change dev "<<DEFAULT_DOCKER_IFACE<<" parent 1: classid";
-    ss<<" 1:10 htb rate "<<bw<<"kbps";
+    ss<<" 1:10 htb rate "<<bw;
     Utils::systemCmd(ss.str(), 0);
   }
 }

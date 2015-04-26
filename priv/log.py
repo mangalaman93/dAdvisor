@@ -41,19 +41,19 @@ def main():
             # CPU
             new = cpu(pid)
             cpu_stats.append((new-cpu_prev)/USAGE_CHECK_PERIOD)
-            print((new-cpu_prev)/USAGE_CHECK_PERIOD, end=",")
+            print ((new-cpu_prev)/USAGE_CHECK_PERIOD),
             cpu_prev = new
             # RX
             # new = net(RX_BYTES)
             new = net(pid, 2)
             rx_stats.append((new-rx_prev)/USAGE_CHECK_PERIOD)
-            print((new-rx_prev)/USAGE_CHECK_PERIOD, end=",")
+            print ((new-rx_prev)/USAGE_CHECK_PERIOD),
             rx_prev = new
             # TX
             # new = net(TX_BYTES)
             new = net(pid, 10)
             tx_stats.append((new-tx_prev)/USAGE_CHECK_PERIOD)
-            print((new-tx_prev)/USAGE_CHECK_PERIOD, end="\n")
+            print ((new-tx_prev)/USAGE_CHECK_PERIOD)
             tx_prev = new
     except:
         pass

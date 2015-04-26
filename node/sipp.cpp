@@ -1,7 +1,3 @@
-
-
-
-
 app_metrics getAppMetrics(FILE** fp, FILE** fp_rtt){
         int successful_calls=0;
         char* line=NULL;

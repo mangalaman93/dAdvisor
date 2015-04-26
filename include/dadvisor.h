@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <map>
+#include <sys/time.h>
 #include "config.h"
 #include "evpath.h"
 #include "lprocess.h"

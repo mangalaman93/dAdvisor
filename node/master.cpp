@@ -42,7 +42,7 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
     EVstone sstone = EValloc_stone(cm);
     contact_list = attr_list_from_string(string_list);
     EVassoc_bridge_action(cm, sstone, contact_list, remote_stone);
-    clients[event->id] = EVcreate_submit_handle(cm, sstone, usage_data_list);
+    clients[event->id] = EVcreate_submit_handle(cm, sstone, alloc_data_list);
 
     // new client
     alloc_info client;

@@ -8,5 +8,9 @@ Dynamic Resource Control and Monitoring Framework
 ## CmakeLists.txt file
 * ADD_SUBDIRECTORY(dadvisor)
 
-## Issues
-* container network test
+## Limitations
+* Container network test
+* LProcess cpu test (cpulimit is not so robust)
+
+## TODO
+* add code for setting pinned CPU

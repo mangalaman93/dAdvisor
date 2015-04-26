@@ -21,7 +21,7 @@ LProcess::LProcess(string n, int pid, string iface) : Guest(n) {
   this->initNetRules();
 
   // other settings
-  this->bw = -1;
+  this->out_bw = -1;
   this->shares = -1;
 }
 
@@ -43,15 +43,15 @@ unsigned long LProcess::getCPUCumUsage() {
   return atoi(result.c_str());
 }
 
-unsigned int LProcess::getHardCPUShares() {
+float LProcess::getHardCPUShares() {
   return this->shares;
 }
 
-unsigned int LProcess::getSoftCPUShares() {
+float LProcess::getSoftCPUShares() {
   return this->shares;
 }
 
-unsigned int LProcess::getPinnedCPUs() {
+int LProcess::getPinnedCPUs() {
   string cpu_str;
   stringstream ss;
   ss<<"taskset -c -p "<<this->pid;
@@ -108,11 +108,11 @@ unsigned int LProcess::getPinnedCPUs() {
   return total_cpus;
 }
 
-void LProcess::setSoftCPUShares(unsigned int shares) {
+void LProcess::setSoftCPUShares(float shares) {
   this->setHardCPUShares(shares);
 }
 
-void LProcess::setHardCPUShares(unsigned int shares) {
+void LProcess::setHardCPUShares(float shares) {
   if(shares > this->getPinnedCPUs()*100) {
     cout<<"Error: trying to allocate shares more than available!"<<endl;
     return;
@@ -122,7 +122,7 @@ void LProcess::setHardCPUShares(unsigned int shares) {
   Utils::systemCmd("sudo killall cpulimit");
 
   stringstream ss;
-  ss<<"sudo cpulimit -bz -p "<<this->pid<<" -l "<<shares*100/1024;
+  ss<<"sudo cpulimit -bz -p "<<this->pid<<" -l "<<shares;
   Utils::systemCmd(ss.str());
 }
 
@@ -136,24 +136,26 @@ unsigned long LProcess::getNetworkOutCumUsage() {
   return atoi(result.c_str());
 }
 
-float LProcess::getNetworkOutAllocation() {
-  return bw;
+float LProcess::getNetworkOutBW() {
+  return out_bw;
 }
 
-void LProcess::setNetworkOutBW(float bw) {
-  if(this->bw == -1) {
-    this->bw = bw;
+void LProcess::setNetworkOutBW(float out_bw) {
+  if(this->out_bw == -1) {
+    this->out_bw = out_bw;
+    string bw = Utils::getStringBW(out_bw);
 
     stringstream ss;
     ss<<"tc class add dev "<<this->interface;
-    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate ";
-    ss<<this->bw<<"kbps";
+    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw;
     Utils::systemCmd(ss.str(), 0);
   } else {
-    this->bw = bw;
+    this->out_bw = out_bw;
+    string bw = Utils::getStringBW(out_bw);
+
     stringstream ss;
     ss<<"tc class change dev "<<this->interface;
-    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw<<"kbps";
+    ss<<" parent 1: classid 1:"<<this->last_handle<<" htb rate "<<bw;
     Utils::systemCmd(ss.str(), 0);
   }
 }

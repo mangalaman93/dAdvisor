@@ -20,6 +20,7 @@ typedef struct _usage_info {
   double call_rate;
   int retransmissions;
   int failed_calls;
+  int successful_calls;
   double max_response_time;
   int watchdog_major;
   int watchdog_minor;
@@ -44,6 +45,7 @@ static FMField usage_field_list[] = {
   {"call_rate", "double", sizeof(double), FMOffset(usage_info_ptr, call_rate)},
   {"retransmissions", "integer", sizeof(int), FMOffset(usage_info_ptr, retransmissions)},
   {"failed_calls", "integer", sizeof(int), FMOffset(usage_info_ptr, failed_calls)},
+  {"successful_calls", "integer", sizeof(int), FMOffset(usage_info_ptr, successful_calls)},
   {"max_response_time", "double", sizeof(double), FMOffset(usage_info_ptr, max_response_time)},
   {"watchdog_major", "integer", sizeof(int), FMOffset(usage_info_ptr, watchdog_major)},
   {"watchdog_minor", "integer", sizeof(int), FMOffset(usage_info_ptr, watchdog_minor)},

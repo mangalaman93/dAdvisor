@@ -1,4 +1,5 @@
 #include "dadvisor.h"
+#include "machine.h"
 
 bool cpu_flag;
 bool network_flag;

@@ -1,7 +1,5 @@
 #include "dadvisor.h"
 
-static LProcess *lp;
-
 #define AWK_COMMAND "awk -F ';' '\
 BEGIN {\
   msize=2;\
@@ -59,6 +57,8 @@ END {\
   print NR,final;\
 }\
 '"
+
+static LProcess *lp;
 
 void getAppMetrics(usage_info& data, char* prefix, char* pid) {
   static int last_line = 3;
@@ -129,17 +129,20 @@ int main(int argc, char **argv) {
   EVstone rstone = EValloc_stone(cm);
   EVassoc_terminal_action(cm, rstone, alloc_data_list, cmd_handler, NULL);
 
-  // sending allocation
+  // setting initial allocation
   EVsource source = EVcreate_submit_handle(cm, sstone, usage_data_list);
   lp = new LProcess("client", atoi(argv[2]), "eth0");
   lp->setHardCPUShares(atoi(argv[3]));
   lp->setNetworkOutBW(atoi(argv[4]));
 
-  // sending usage
+  // sending initial allocations
   usage_info data;
   char *str = attr_list_to_string(CMget_contact_list(cm));
   data.id = new char[strlen(str)+6];
   sprintf(data.id, "%d:%s", rstone, str);
+  data.cpu_usage = atoi(argv[3]);
+  data.network_out_usage = atoi(argv[4]);
+  EVsubmit(source, &data, NULL);
 
   // sending usage
   struct timeval cpu_time;

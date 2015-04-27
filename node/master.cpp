@@ -1,8 +1,16 @@
 #include "dadvisor.h"
 #include "machine.h"
 
+// flags
 bool cpu_flag;
 bool network_flag;
+int cpu_cap_flag = 0;
+
+/* -------- @todo hard code --------- */
+char nat_client[100] = "\0";
+/* ---------------------------------- */
+
+// maps
 map<string, alloc_info> cinfo;
 map<string, EVsource> clients;
 
@@ -28,6 +36,23 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
       iter->second.network_out_alloc = new_alloc.network_out_alloc;
     }
 
+    /* --------- @todo hard coded ---------- */
+    if(strlen(nat_client) != 0) {
+      if(new_alloc.cpu_alloc > SAFETY_FACTOR*machine_capacity.at(event->id)[CPU]) {
+        cpu_cap_flag += 1;
+      } else {
+        cpu_cap_flag = 0;
+      }
+
+      if(cpu_cap_flag == 3) {
+        new_alloc.cpu_alloc = machine_capacity.at(event->id)[CPU]*SAFETY_FACTOR;
+        alloc_info alloc;
+        alloc.id = "begin";
+        EVsubmit(clients[nat_client], &alloc, NULL);
+      }
+    }
+    /* -------------------------------- */
+
     EVsubmit(clients[event->id], &new_alloc, NULL);
   } else {
     char string_list[2048];
@@ -50,7 +75,14 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
     client.id = new char[strlen(event->id)];
     strcpy(client.id, event->id);
     client.cpu_alloc = event->cpu_usage;
+    client.network_out_alloc = event->network_out_usage;
     cinfo[event->id] = client;
+
+    /* -------- @todo hard code --------- */
+    if(event->cpu_usage==-1 && event->network_out_usage==-1) {
+      strcpy(nat_client, event->id);
+    }
+    /* ---------------------------------- */
   }
 
   return 1;

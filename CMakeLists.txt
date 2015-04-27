@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-set (NO_INST_PROGS master client sipp)
+set (NO_INST_PROGS master client sipp nat)
 
 ENABLE_TESTING()
 

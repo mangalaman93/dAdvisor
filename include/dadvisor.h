@@ -13,6 +13,7 @@
 /* general usage info struct */
 typedef struct _usage_info {
   char* id;
+  char* contact_list;
   double cpu_usage;
   double network_out_usage;
 
@@ -27,6 +28,7 @@ typedef struct _usage_info {
 
   _usage_info() {
     id = NULL;
+    contact_list = NULL;
     cpu_usage = 0.0;
     network_out_usage = 0.0;
     call_rate = 0.0;
@@ -40,6 +42,7 @@ typedef struct _usage_info {
 
 static FMField usage_field_list[] = {
   {"id", "string", sizeof(char*), FMOffset(usage_info_ptr, id)},
+  {"contact_list", "string", sizeof(char*), FMOffset(usage_info_ptr, contact_list)},
   {"cpu_usage", "double", sizeof(double), FMOffset(usage_info_ptr, cpu_usage)},
   {"network_out_usage", "double", sizeof(double), FMOffset(usage_info_ptr, network_out_usage)},
   {"call_rate", "double", sizeof(double), FMOffset(usage_info_ptr, call_rate)},

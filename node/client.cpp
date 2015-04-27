@@ -20,8 +20,8 @@ static int cmd_handler(CManager cm, void *vevent, void *client_data,
 }
 
 int main(int argc, char **argv) {
-  if(argc < 5) {
-    printf("usage: %s <cpu-usage> <net-usage> <master-contact-list> <pid>\n", argv[0]);
+  if(argc < 6) {
+    printf("usage: %s <id> <cpu-usage> <net-usage> <master-contact-list> <pid>\n", argv[0]);
     return -1;
   }
 
@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
   // parsing the master contact list
   char string_list[2048];
   EVstone remote_stone;
-  if(sscanf(argv[3], "%d:%s", &remote_stone, &string_list[0]) != 2) {
-    printf("Bad arguments \"%s\"\n", argv[3]);
+  if(sscanf(argv[4], "%d:%s", &remote_stone, &string_list[0]) != 2) {
+    printf("Bad arguments \"%s\"\n", argv[4]);
     exit(0);
   }
 
@@ -47,17 +47,17 @@ int main(int argc, char **argv) {
 
   // setting initial allocation
   EVsource source = EVcreate_submit_handle(cm, sstone, usage_data_list);
-  lp = new LProcess("client", atoi(argv[4]), "eth0");
-  lp->setHardCPUShares(atoi(argv[1]));
-  lp->setNetworkOutBW(atoi(argv[2]));
+  lp = new LProcess(argv[1], atoi(argv[5]), "eth0");
+  lp->setHardCPUShares(atoi(argv[2]));
+  lp->setNetworkOutBW(atoi(argv[3]));
 
   // sending initial allocations
   usage_info data;
   char *str = attr_list_to_string(CMget_contact_list(cm));
   data.id = new char[strlen(str)+6];
   sprintf(data.id, "%d:%s", rstone, str);
-  data.cpu_usage = atoi(argv[1]);
-  data.network_out_usage = atoi(argv[2]);
+  data.cpu_usage = atoi(argv[2]);
+  data.network_out_usage = atoi(argv[3]);
   EVsubmit(source, &data, NULL);
 
   // sending usage

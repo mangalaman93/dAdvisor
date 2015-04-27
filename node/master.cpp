@@ -5,10 +5,7 @@
 bool cpu_flag;
 bool network_flag;
 int cpu_cap_flag = 0;
-
-/* -------- @todo hard code --------- */
-char nat_client[100] = "\0";
-/* ---------------------------------- */
+bool using_2_snort = false;
 
 // maps
 map<string, alloc_info> cinfo;
@@ -37,7 +34,8 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
     }
 
     /* --------- @todo hard coded ---------- */
-    if(strlen(nat_client) != 0) {
+    map<string, EVsource>::iterator nat_iter = clients.find("nat");
+    if(!using_2_snort && nat_iter != clients.end()) {
       if(new_alloc.cpu_alloc > SAFETY_FACTOR*machine_capacity.at(event->id)[CPU]) {
         cpu_cap_flag += 1;
       } else {
@@ -48,7 +46,8 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
         new_alloc.cpu_alloc = machine_capacity.at(event->id)[CPU]*SAFETY_FACTOR;
         alloc_info alloc;
         alloc.id = "begin";
-        EVsubmit(clients[nat_client], &alloc, NULL);
+        EVsubmit(nat_iter->second, &alloc, NULL);
+        using_2_snort = true;
       }
     }
     /* -------------------------------- */
@@ -59,8 +58,8 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
     attr_list contact_list;
     EVstone remote_stone;
 
-    if(sscanf(event->id, "%d:%s", &remote_stone, &string_list[0]) != 2) {
-      printf("Bad arguments \"%s\"\n", event->id);
+    if(sscanf(event->contact_list, "%d:%s", &remote_stone, &string_list[0]) != 2) {
+      printf("Bad arguments \"%s\"\n", event->contact_list);
       return -1;
     }
 
@@ -77,12 +76,6 @@ static int alloc_handler(CManager cm, void *vevent, void *client_data,
     client.cpu_alloc = event->cpu_usage;
     client.network_out_alloc = event->network_out_usage;
     cinfo[event->id] = client;
-
-    /* -------- @todo hard code --------- */
-    if(event->cpu_usage==-1 && event->network_out_usage==-1) {
-      strcpy(nat_client, event->id);
-    }
-    /* ---------------------------------- */
   }
 
   return 1;

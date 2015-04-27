@@ -104,8 +104,8 @@ static int cmd_handler(CManager cm, void *vevent, void *client_data,
 }
 
 int main(int argc, char **argv) {
-  if(argc < 6) {
-    printf("usage: %s <master-contact-list> <pid> <cpu-usage> <net-usage> <scenario>\n", argv[0]);
+  if(argc < 7) {
+    printf("usage: %s <id> <cpu-usage> <net-usage> <scenario> <master-contact-list> <pid>\n", argv[0]);
     return -1;
   }
 
@@ -115,8 +115,8 @@ int main(int argc, char **argv) {
   // parsing the master contact list
   char string_list[2048];
   EVstone remote_stone;
-  if(sscanf(argv[1], "%d:%s", &remote_stone, &string_list[0]) != 2) {
-    printf("Bad arguments \"%s\"\n", argv[1]);
+  if(sscanf(argv[5], "%d:%s", &remote_stone, &string_list[0]) != 2) {
+    printf("Bad arguments \"%s\"\n", argv[5]);
     exit(0);
   }
 
@@ -131,17 +131,18 @@ int main(int argc, char **argv) {
 
   // setting initial allocation
   EVsource source = EVcreate_submit_handle(cm, sstone, usage_data_list);
-  lp = new LProcess("client", atoi(argv[2]), "eth0");
-  lp->setHardCPUShares(atoi(argv[3]));
-  lp->setNetworkOutBW(atoi(argv[4]));
+  lp = new LProcess(argv[1], atoi(argv[6]), "eth0");
+  lp->setHardCPUShares(atoi(argv[2]));
+  lp->setNetworkOutBW(atoi(argv[3]));
 
   // sending initial allocations
   usage_info data;
   char *str = attr_list_to_string(CMget_contact_list(cm));
-  data.id = new char[strlen(str)+6];
-  sprintf(data.id, "%d:%s", rstone, str);
-  data.cpu_usage = atoi(argv[3]);
-  data.network_out_usage = atoi(argv[4]);
+  data.contact_list = new char[strlen(str)+6];
+  sprintf(data.contact_list, "%d:%s", rstone, str);
+  data.id = argv[1];
+  data.cpu_usage = atoi(argv[2]);
+  data.network_out_usage = atoi(argv[3]);
   EVsubmit(source, &data, NULL);
 
   // sending usage
@@ -171,7 +172,7 @@ int main(int argc, char **argv) {
     data.network_out_usage = (net_usage-old_usage)/elapsed_time;
 
     // getting other application specific matrics
-    getAppMetrics(data, argv[5], argv[2]);
+    getAppMetrics(data, argv[4], argv[6]);
 
     printf("Current usage: callrate-%2f\tcpu-%2f\tnet-%2f\n",
       data.call_rate, data.cpu_usage, data.network_out_usage);

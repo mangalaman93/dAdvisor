@@ -10,6 +10,12 @@ fi
 # command line arguments
 PORT=8888
 
+# $1 -> ip, $2 -> rate
+set_rate() {
+  bash -c "echo \"cset rate $2\" >/dev/udp/$1/$PORT"
+  echo "set rate to $2 for $1:$PORT"
+}
+
 # following scenario is emulated here
 #           <---20s--> <---20s--> <---20s-->
 #    2000              __________
@@ -18,16 +24,17 @@ PORT=8888
 #          |                                |
 #     0  __|                                |__
 #
-for ip in "$@"
-do
-  bash -c "echo \"cset rate 1000\" >/dev/udp/$ip/$PORT"
-  echo "set rate to 1000..."
-  sleep 30s
-  bash -c "echo \"cset rate 2000\" >/dev/udp/$ip/$PORT"
-  echo "set rate to 2000..."
-  sleep 30s
-  bash -c "echo \"cset rate 1000\" >/dev/udp/$ip/$PORT"
-  echo "set rate to 1000..."
-  sleep 30s
-  bash -c "echo \"q\" > /dev/udp/$ip/$PORT"
+for ip in "$@"; do
+  set_rate $ip 1000
 done
+sleep 30s
+
+for ip in "$@"; do
+  set_rate $ip 2000
+done
+sleep 30s
+
+for ip in "$@"; do
+  set_rate $ip 1000
+done
+sleep 30s

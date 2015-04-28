@@ -14,3 +14,5 @@ Dynamic Resource Control and Monitoring Framework
 
 ## TODO
 * add code for setting pinned CPU
+* master (segmentation fault)
+* trivial control policy (sipp has to be restarted)

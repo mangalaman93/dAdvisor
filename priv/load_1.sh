@@ -16,6 +16,12 @@ set_rate() {
   echo "set rate to $2 for $1:$PORT"
 }
 
+# $1 -> ip -> rate
+stop() {
+  bash -c "echo \"q\" >/dev/udp/$1/$PORT"
+  echo "stopping client"
+}
+
 # following scenario is emulated here
 #           <---20s--> <---20s--> <---20s-->
 #    2000              __________
@@ -38,3 +44,7 @@ for ip in "$@"; do
   set_rate $ip 1000
 done
 sleep 30s
+
+for ip in "$@"; do
+  stop $ip
+done
